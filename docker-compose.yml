@@ -1,20 +1,46 @@
-version: '3.8'
+name: mind
+
+x-common:
+  environment: &env
+    VERSION: "1.20.4"
+    EULA: "TRUE"
+    MEMORY: "2048M"
+    SEED: "-183412789913619791"
+    MAX_PLAYERS: "2"
+    ONLINE_MODE: "false"
+    USE_AIKAR_FLAGS: "true"
+    TZ: "America/New_York"
+    SERVER_PORT: 55916
+    OPS: |-
+      davidseibert
+
 
 services:
-  app:
-    image: node:latest
-    working_dir: /app
-    volumes:
-      - .:/app
-    command: node main.js
+  ai:
+    build:
+      context: .
     ports:
       - "3000-3003:3000-3003" # see the view from the camera mounted on your bot head: http://localhost:3000/
-
-  viaproxy: #use this service to connect to an unsupported minecraft server versions. more info: ./services/viaproxy/README.md
-    image: ghcr.io/viaversion/viaproxy:latest
-    volumes:
-      - ./services/viaproxy:/app/run
+  flat:
+    image: itzg/minecraft-server:latest
+    tty: true
+    stdin_open: true
     ports:
-      - "25568:25568"
-    profiles:
-      - viaproxy
+      - "25565:55916"
+    environment:
+      <<: *env
+      MODE: "1"
+      DIFFICULTY: "1"
+      LEVEL: "flat world"
+      LEVEL_TYPE: "flat"
+      ALLOW_FLIGHT: "true"
+      ENABLE_COMMAND_BLOCK: "true"
+      SPAWN_ANIMALS: "false"
+      SPAWN_MONSTERS: "false"
+      SPAWN_NPCS: "true"
+      FORCE_GAME_MODE: "true"
+    volumes:
+      - flat:/data
+
+volumes:
+  flat:

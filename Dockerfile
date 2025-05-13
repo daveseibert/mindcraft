@@ -13,12 +13,10 @@ RUN apt-get -y install python3-boto3
 RUN apt-get -y install python3-tqdm
 RUN apt-get -y install tmux
 
-RUN git clone https://github.com/kolbytn/mindcraft.git /mindcraft
+# RUN git clone https://github.com/kolbytn/mindcraft.git /mindcraft
 WORKDIR /mindcraft
-COPY ./server_data.zip /mindcraft
-RUN unzip server_data.zip
-
-RUN npm install
+# COPY ./server_data.zip /mindcraft
+# RUN #unzip server_data.zip
 
 
 # Copy the rest of the application code to the working directory
@@ -46,6 +44,26 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
 RUN unzip awscliv2.zip
 RUN ./aws/install
 
+COPY package.json .
+RUN npm install
+RUN --mount=type=bind,source=requirements.txt,target=/tmp/requirements.txt \
+    pip install --break-system-packages --no-cache-dir --requirement /tmp/requirements.txt
+
+COPY bots/ ./bots/
+COPY patches/ ./patches/
+COPY profiles/ ./profiles/
+COPY services/ ./services/
+COPY src/ ./src/
+COPY tasks/ ./tasks/
+COPY andy.json .
+COPY settings.js .
+COPY viewer.html .
+COPY keys.json .
+COPY main.js .
+
+
 VOLUME /data
 
 EXPOSE 8000
+
+CMD ["node", "main.js"]
