@@ -14,13 +14,32 @@ x-common:
     OPS: |-
       davidseibert
 
-
 services:
   ai:
     build:
       context: .
+    environment:
+      - OPENAI_API_KEY
     ports:
       - "3000-3003:3000-3003" # see the view from the camera mounted on your bot head: http://localhost:3000/
+      - "8000:8000"
+  easy:
+    image: itzg/minecraft-server:latest
+    tty: true
+    stdin_open: true
+    ports:
+      - "25566:55916"
+    environment:
+      <<: *env
+      MODE: "0"
+      DIFFICULTY: "1"
+      LEVEL: "easy world"
+      SPAWN_ANIMALS: "true"
+      SPAWN_MONSTERS: "false"
+      SPAWN_NPCS: "true"
+      FORCE_GAME_MODE: "true"
+    volumes:
+      - easy:/data
   flat:
     image: itzg/minecraft-server:latest
     tty: true
@@ -44,3 +63,4 @@ services:
 
 volumes:
   flat:
+  easy:
