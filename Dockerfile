@@ -58,7 +58,6 @@ COPY tasks/ ./tasks/
 COPY andy.json .
 COPY settings.js .
 COPY viewer.html .
-COPY keys.json .
 COPY main.js .
 
 
