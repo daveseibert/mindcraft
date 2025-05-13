@@ -6,7 +6,7 @@ x-common:
     EULA: "TRUE"
     MEMORY: "2048M"
     SEED: "-183412789913619791"
-    MAX_PLAYERS: "2"
+    MAX_PLAYERS: "4"
     ONLINE_MODE: "false"
     USE_AIKAR_FLAGS: "true"
     TZ: "America/New_York"
@@ -21,10 +21,11 @@ services:
     environment:
       MINECRAFT_HOST: flat
       MINECRAFT_PORT: 25565
-      BOT_VIEWS: true
-      INSECURE_CODING: true
+#      BOT_VIEWS: true
+#      INSECURE_CODING: true
 #      VISION: true
       OPENAI_API_KEY:
+      ANTHROPIC_API_KEY:
     ports:
       - "3000:3000" # see the view from the camera mounted on your bot head: http://localhost:3000/
       - "8080:8080"
@@ -63,7 +64,7 @@ services:
       SPAWN_ANIMALS: "false"
       SPAWN_MONSTERS: "false"
       SPAWN_NPCS: "true"
-      FORCE_GAME_MODE: "true"
+#      FORCE_GAME_MODE: "true"
     volumes:
       - flat:/data
 
