@@ -19,10 +19,15 @@ services:
     build:
       context: .
     environment:
-      - OPENAI_API_KEY
+      MINECRAFT_HOST: flat
+      MINECRAFT_PORT: 25565
+      BOT_VIEWS: true
+      INSECURE_CODING: true
+#      VISION: true
+      OPENAI_API_KEY:
     ports:
-      - "3000-3003:3000-3003" # see the view from the camera mounted on your bot head: http://localhost:3000/
-      - "8000:8000"
+      - "3000:3000" # see the view from the camera mounted on your bot head: http://localhost:3000/
+      - "8080:8080"
   easy:
     image: itzg/minecraft-server:latest
     tty: true
@@ -45,9 +50,10 @@ services:
     tty: true
     stdin_open: true
     ports:
-      - "25565:55916"
+      - "25565:25565"
     environment:
       <<: *env
+      SERVER_PORT: 25565
       MODE: "1"
       DIFFICULTY: "1"
       LEVEL: "flat world"

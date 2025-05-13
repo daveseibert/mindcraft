@@ -1,12 +1,12 @@
 const settings = {
     "minecraft_version": "1.20.4", // supports up to 1.21.1
-    "host": "easy", // or "localhost", "your.ip.address.here"
+    "host": "localhost",
     "port": 55916,
     "auth": "offline", // or "microsoft"
 
     // the mindserver manages all agents and hosts the UI
     "host_mindserver": true, // if true, the mindserver will be hosted on this machine. otherwise, specify a public IP address
-    "mindserver_host": "localhost",
+    "mindserver_host": "0.0.0.0",
     "mindserver_port": 8080,
     
     // the base profile is shared by all bots for default prompts/examples/modes
@@ -48,6 +48,9 @@ const settings = {
 }
 
 // these environment variables override certain settings
+if (process.env.MINECRAFT_HOST) {
+    settings.host = process.env.MINECRAFT_HOST;
+}
 if (process.env.MINECRAFT_PORT) {
     settings.port = process.env.MINECRAFT_PORT;
 }
@@ -59,6 +62,12 @@ if (process.env.PROFILES && JSON.parse(process.env.PROFILES).length > 0) {
 }
 if (process.env.INSECURE_CODING) {
     settings.allow_insecure_coding = true;
+}
+if (process.env.VISION) {
+    settings.allow_vision = true;
+}
+if (process.env.BOT_VIEWS) {
+    settings.show_bot_views = true;
 }
 if (process.env.BLOCKED_ACTIONS) {
     settings.blocked_actions = JSON.parse(process.env.BLOCKED_ACTIONS);
