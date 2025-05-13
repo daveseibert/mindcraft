@@ -21,7 +21,7 @@
         "torch_placing": true,
         "elbow_room": true,
         "idle_staring": true,
-        "cheat": false
+        "cheat": true
     },
 
     "conversation_examples": [

@@ -59,6 +59,7 @@ COPY andy.json .
 COPY settings.js .
 COPY viewer.html .
 COPY main.js .
+COPY eslint.config.js .
 
 
 VOLUME /data

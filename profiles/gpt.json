@@ -29,7 +29,7 @@
         "torch_placing": false,
         "elbow_room": false,
         "idle_staring": true,
-        "cheat": false
+        "cheat": true
     },
 
     "conversation_examples": [
