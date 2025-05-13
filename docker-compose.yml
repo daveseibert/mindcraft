@@ -5,12 +5,11 @@ x-common:
     VERSION: "1.20.4"
     EULA: "TRUE"
     MEMORY: "2048M"
-    SEED: "-183412789913619791"
+    SEED: "993690229419782480"
     MAX_PLAYERS: "4"
     ONLINE_MODE: "false"
     USE_AIKAR_FLAGS: "true"
     TZ: "America/New_York"
-    SERVER_PORT: 55916
 
 services:
   ai:
@@ -32,13 +31,14 @@ services:
     tty: true
     stdin_open: true
     ports:
-      - "25566:55916"
+      - "25566:25565"
     environment:
       <<: *env
       MODE: "0"
       DIFFICULTY: "1"
       LEVEL: "easy world"
       SPAWN_ANIMALS: "true"
+      SERVER_PORT: 25565
       SPAWN_MONSTERS: "false"
       SPAWN_NPCS: "true"
       FORCE_GAME_MODE: "true"
