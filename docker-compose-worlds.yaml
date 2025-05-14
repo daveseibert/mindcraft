@@ -1,0 +1,55 @@
+x-common:
+  server-config: &common-server-config
+    image: itzg/minecraft-server:latest
+    tty: true
+    stdin_open: true
+  server-env: &common-server-env
+    VERSION: "1.20.4"
+    EULA: "TRUE"
+    MEMORY: "2048M"
+    SEED: "993690229419782480"
+    MAX_PLAYERS: "4"
+    ONLINE_MODE: "false"
+    USE_AIKAR_FLAGS: "true"
+    TZ: "America/New_York"
+    SERVER_PORT: 25565
+    FORCE_GAME_MODE: "false"
+
+
+services:
+  flat:
+    <<: *common-server-config
+    ports:
+      - "25565:25565"
+    environment:
+      <<: *common-server-env
+      MODE: "1"
+      DIFFICULTY: "1"
+      LEVEL: "flat world"
+      LEVEL_TYPE: "flat"
+      ALLOW_FLIGHT: "true"
+      ENABLE_COMMAND_BLOCK: "true"
+      SPAWN_ANIMALS: "false"
+      SPAWN_MONSTERS: "false"
+      SPAWN_NPCS: "true"
+    volumes:
+      - flat:/data
+  easy:
+    <<: *common-server-config
+    ports:
+      - "25566:25565"
+    environment:
+      <<: *common-server-env
+      MODE: "0"
+      DIFFICULTY: "1"
+      LEVEL: "easy world"
+      SPAWN_ANIMALS: "true"
+      SPAWN_MONSTERS: "false"
+      SPAWN_NPCS: "true"
+    volumes:
+      - easy:/data
+    profiles:
+      - easy
+volumes:
+  flat:
+  easy:
