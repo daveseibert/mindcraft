@@ -23,6 +23,7 @@ services:
 #      VISION: true
       OPENAI_API_KEY:
       ANTHROPIC_API_KEY:
+      GEMINI_API_KEY:
     ports:
       - "3000:3000" # see the view from the camera mounted on your bot head: http://localhost:3000/
       - "8080:8080"
