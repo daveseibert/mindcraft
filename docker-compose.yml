@@ -3,3 +3,9 @@ name: mind
 include:
   - docker-compose-worlds.yaml
   - docker-compose-agents.yaml
+
+services:
+  registry:
+    image: registry:2.7
+    ports:
+      - "5000:5000"
