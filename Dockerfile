@@ -1,6 +1,8 @@
+FROM node:18 AS agent
+# Specify a base image
 # Specify a base image
 # FROM ubuntu:22.04
-FROM node:18
+# FROM ubuntu:22.04
 
 #Install some dependencies
 
@@ -62,8 +64,42 @@ COPY main.js .
 COPY eslint.config.js .
 
 
-VOLUME /data
-
 EXPOSE 8000
 
 CMD ["node", "main.js"]
+
+FROM itzg/minecraft-server:latest AS world-base
+
+ENV TZ="America/New_York"
+ENV EULA="TRUE"
+ENV VERSION="1.20.4"
+ENV MEMORY="2048M"
+ENV SEED="993690229419782480"
+ENV MAX_PLAYERS="4"
+ENV ONLINE_MODE="false"
+ENV USE_AIKAR_FLAGS="true"
+ENV SERVER_PORT=25565
+ENV FORCE_GAME_MODE="false"
+
+EXPOSE 25565
+
+FROM world-base AS world-flat
+
+ENV MODE="1"
+ENV DIFFICULTY="1"
+ENV LEVEL="flat world"
+ENV LEVEL_TYPE="flat"
+ENV ALLOW_FLIGHT="true"
+ENV ENABLE_COMMAND_BLOCK="true"
+ENV SPAWN_ANIMALS="false"
+ENV SPAWN_MONSTERS="false"
+ENV SPAWN_NPCS="true"
+
+FROM world-base AS world-easy
+
+ENV MODE="0"
+ENV DIFFICULTY="1"
+ENV LEVEL="easy world"
+ENV SPAWN_ANIMALS="true"
+ENV SPAWN_MONSTERS="false"
+ENV SPAWN_NPCS="true"

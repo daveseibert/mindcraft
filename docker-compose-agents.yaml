@@ -1,14 +1,12 @@
 x-common:
   agent-env: &agent-env
-    MINECRAFT_HOST: "flat"
+    MINECRAFT_HOST: "pi2.local"
     MINECRAFT_PORT: "25565"
     INSECURE_CODING: "true"
   agent: &agent
     build:
       context: .
-    depends_on:
-      flat:
-        condition: service_healthy
+      target: agent
 
 services:
   andy:
