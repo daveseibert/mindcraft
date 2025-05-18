@@ -73,7 +73,6 @@ FROM itzg/minecraft-server:latest AS world-base
 ENV TZ="America/New_York"
 ENV EULA="TRUE"
 ENV VERSION="1.20.4"
-ENV MEMORY="2048M"
 ENV SEED="993690229419782480"
 ENV MAX_PLAYERS="4"
 ENV ONLINE_MODE="false"

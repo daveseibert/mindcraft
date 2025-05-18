@@ -7,5 +7,6 @@ This repo will focus on dockerization and running a server for the bot to join.
 - [X] Get host/port from env vars (there was an env var for port, but not host)
 - [X] Add a second model (Claude; works great, much better than GPT)
 - [X] Add a third model (Gemini; logs in, great attitude, keeps disconnecting)
-- [ ] Move bots to individual containers
-- [ ] Try to get it to run on Raspberry Pi
+- [X] Move bots to individual containers
+- [X] Run Minecraft servers on Raspberry Pi
+- [ ] Run agents on Raspberry Pi
