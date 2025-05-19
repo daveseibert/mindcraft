@@ -1,4 +1,4 @@
-FROM node:18 AS agent
+FROM node:22 AS agent
 # Specify a base image
 # Specify a base image
 # FROM ubuntu:22.04
@@ -47,9 +47,11 @@ RUN unzip awscliv2.zip
 RUN ./aws/install
 
 COPY package.json .
-RUN npm install
+RUN npm install --omit=dev
+
 RUN --mount=type=bind,source=requirements.txt,target=/tmp/requirements.txt \
     pip install --break-system-packages --no-cache-dir --requirement /tmp/requirements.txt
+
 
 COPY bots/ ./bots/
 COPY patches/ ./patches/
@@ -74,7 +76,7 @@ ENV TZ="America/New_York"
 ENV EULA="TRUE"
 ENV VERSION="1.20.4"
 ENV SEED="993690229419782480"
-ENV MAX_PLAYERS="4"
+ENV MAX_PLAYERS="20"
 ENV ONLINE_MODE="false"
 ENV USE_AIKAR_FLAGS="true"
 ENV SERVER_PORT=25565
