@@ -1,4 +1,4 @@
-FROM node:18 AS agent
+FROM node:24 AS agent
 # Specify a base image
 # Specify a base image
 # FROM ubuntu:22.04
@@ -47,12 +47,18 @@ RUN unzip awscliv2.zip
 RUN ./aws/install
 
 COPY package.json .
-RUN npm install
+RUN ln -s /usr/bin/python3 /usr/bin/python
+RUN apt-get install -y build-essential libxi-dev libglu1-mesa-dev libglew-dev pkg-config libsdl-pango-dev
+COPY patches/ ./patches/
+
 RUN --mount=type=bind,source=requirements.txt,target=/tmp/requirements.txt \
     pip install --break-system-packages --no-cache-dir --requirement /tmp/requirements.txt
 
+RUN --mount=type=bind,source=package.json,target=package.json \
+    --mount=type=cache,target=/root/.npm \
+    npm install --omit=dev
+
 COPY bots/ ./bots/
-COPY patches/ ./patches/
 COPY profiles/ ./profiles/
 COPY services/ ./services/
 COPY src/ ./src/

@@ -6,6 +6,9 @@ x-common:
   agent: &agent
     build:
       context: .
+      platforms:
+        - "linux/amd64"
+        - "linux/arm64"
       target: agent
 
 services:
