@@ -1,7 +1,7 @@
 x-common:
   agent-env: &agent-env
     MINECRAFT_HOST: "pi2.local"
-    MINECRAFT_PORT: "25565
+    MINECRAFT_PORT: "25565"
     INSECURE_CODING: "true"
   agent: &agent
     build:
