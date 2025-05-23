@@ -1,11 +1,19 @@
 name: mind
 
-include:
-  - docker-compose-worlds.yaml
-  - docker-compose-agents.yaml
+#include:
+#  - docker-compose-worlds.yaml
+#  - docker-compose-agents.yaml
 
 services:
   registry:
     image: registry:2.7
     ports:
       - "5000:5000"
+  fastapi:
+    build:
+      context: .
+      target: fastapi
+    ports:
+      - "8080:80"
+    environment:
+      OPENAI_API_KEY:
