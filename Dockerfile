@@ -1,60 +1,65 @@
 FROM node:22 AS agent
-# Specify a base image
-# Specify a base image
-# FROM ubuntu:22.04
-# FROM ubuntu:22.04
-
-#Install some dependencies
-
-RUN apt-get -y update
-RUN apt-get -y install git
-RUN apt-get -y install unzip
-RUN apt-get -y install python3
-RUN apt-get -y install python3-pip
-RUN apt-get -y install python3-boto3
-RUN apt-get -y install python3-tqdm
-RUN apt-get -y install tmux
-
-# RUN git clone https://github.com/kolbytn/mindcraft.git /mindcraft
 WORKDIR /mindcraft
-# COPY ./server_data.zip /mindcraft
-# RUN #unzip server_data.zip
 
+
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    wget \
+    apt-transport-https \
+    gnupg \
+    lsb-release \
+    #    python3 \
+#    python3-pip \
+#    python3-boto3 \
+#    python3-tqdm \
+#    python3-tmux \
+    && rm -rf /var/lib/apt/lists/*
+
+# Add Adoptium repository key and repository
+# Add Adoptium repository
+RUN wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | apt-key add - \
+    && echo "deb https://packages.adoptium.net/artifactory/deb $(lsb_release -cs) main" > /etc/apt/sources.list.d/adoptium.list \
+    && apt-get update && apt-get install -y \
+    temurin-21-jdk \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy the rest of the application code to the working directory
 # RUN apt update
 # RUN apt install bash ca-certificates wget git -y # install first to avoid openjdk install bug
 # RUN apt install openjdk-17-jre-headless -y
-RUN apt install -y wget apt-transport-https gnupg lsb-release
+#RUN apt install -y wget apt-transport-https gnupg lsb-release
 
-# Add Adoptium repository key
-RUN wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | apt-key add -
-
-# Add Adoptium repository
-RUN echo "deb https://packages.adoptium.net/artifactory/deb $(lsb_release -cs) main" > /etc/apt/sources.list.d/adoptium.list
 
 # Update package lists
-RUN apt update
+# RUN apt update
 
 # Install Temurin (Adoptium) Java 21
-RUN apt install temurin-21-jdk -y
+# RUN apt install temurin-21-jdk -y
 
 # Install unzip
 
 
-RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-RUN unzip awscliv2.zip
-RUN ./aws/install
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
+    && unzip awscliv2.zip \
+    && ./aws/install
 
-COPY package.json .
-RUN npm install --omit=dev
+#COPY package.json .
+#RUN npm install --omit=dev
+COPY patches/ ./patches/
 
-RUN --mount=type=bind,source=requirements.txt,target=/tmp/requirements.txt \
-    pip install --break-system-packages --no-cache-dir --requirement /tmp/requirements.txt
+RUN --mount=type=bind,source=package.json,target=package.json \
+#    --mount=type=bind,source=package-lock.json,target=package-lock.json \
+    --mount=type=cache,target=/root/.npm \
+    npm install \
+    && npx patch-package
+
+
+#RUN --mount=type=bind,source=requirements.txt,target=/tmp/requirements.txt \
+#    pip install --break-system-packages --no-cache-dir --requirement /tmp/requirements.txt
 
 
 COPY bots/ ./bots/
-COPY patches/ ./patches/
 COPY profiles/ ./profiles/
 COPY services/ ./services/
 COPY src/ ./src/
@@ -105,7 +110,7 @@ ENV SPAWN_ANIMALS="true"
 ENV SPAWN_MONSTERS="false"
 ENV SPAWN_NPCS="true"
 
-FROM python:3.12-slim AS fastapi
+FROM python:3.12-slim AS python-base
 
 ENV TZ=America/New_York
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -122,6 +127,8 @@ RUN export PATH='/root/.duckdb/cli/latest':$PATH
 
 RUN --mount=type=bind,source=requirements.txt,target=/tmp/requirements.txt \
     pip install --break-system-packages --no-cache-dir --requirement /tmp/requirements.txt
+
+FROM python-base AS fastapi
 
 RUN mkdir -p data
 

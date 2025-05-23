@@ -14,9 +14,9 @@ export class GPT {
         if (hasKey('OPENAI_ORG_ID'))
             config.organization = getKey('OPENAI_ORG_ID');
 
-        config.apiKey = getKey('OPENAI_API_KEY');
+        // config.apiKey = getKey('OPENAI_API_KEY');
 
-        this.openai = new OpenAIApi(config);
+        // this.openai = new OpenAIApi(config);
     }
 
     async sendRequest(turns, systemMessage, stop_seq='***') {
@@ -32,16 +32,49 @@ export class GPT {
             delete pack.stop;
         }
 
+        const url = "http://fastapi/create_completions";
+        // try {
+        //     const response = await fetch(url, {
+        //         method: "POST",
+        //         body: JSON.stringify(pack),
+        //         // …
+        //     });
+        //     if (!response.ok) {
+        //         console.error(response.status);
+        //         console.log(response.json());
+        //         throw new Error(`Response status: ${response.status}`);
+        //     }
+        //
+        //     const json = await response.json();
+        //     console.log(json);
+        // } catch (error) {
+        //     console.error(error.message);
+        // }
+
         let res = null;
 
         try {
             console.log('Awaiting openai api response from model', this.model_name)
             // console.log('Messages:', messages);
-            let completion = await this.openai.chat.completions.create(pack);
-            if (completion.choices[0].finish_reason == 'length')
-                throw new Error('Context length exceeded'); 
-            console.log('Received.')
-            res = completion.choices[0].message.content;
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(pack),
+                // …
+            });
+            let response_json = await response.json();
+            res = response_json.content;
+            console.log(res);
+            if (!response.ok) {
+                throw new Error(`Response status: ${response.status}`);
+            }
+            // let completion = await this.openai.chat.completions.create(pack);
+            // if (completion.choices[0].finish_reason == 'length')
+            //     throw new Error('Context length exceeded');
+            // console.log('Received.')
+            // res = completion.choices[0].message.content;
         }
         catch (err) {
             if ((err.message == 'Context length exceeded' || err.code == 'context_length_exceeded') && turns.length > 1) {
@@ -77,15 +110,43 @@ export class GPT {
     }
 
     async embed(text) {
-        if (text.length > 8191)
+        const url = "http://fastapi/embeddings";
+        if (text.length > 8191) {
             text = text.slice(0, 8191);
-        const embedding = await this.openai.embeddings.create({
-            model: this.model_name || "text-embedding-3-small",
-            input: text,
-            encoding_format: "float",
-        });
-        return embedding.data[0].embedding;
+        }
+
+        try {
+            const model = this.model_name || "text-embedding-3-small";
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: model,
+                    input: text
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Embedding request failed with status: ${response.status}`);
+            }
+
+            const embeddings = await response.json();
+            console.log('Embedding response received.');
+
+            if (!Array.isArray(embeddings) || !embeddings[0]?.embedding) {
+                console.error('Invalid embedding response format:', embeddings);
+                throw new Error('Invalid embedding response format');
+            }
+
+            return embeddings[0].embedding;
+        } catch (err) {
+            console.error('Embedding error:', err);
+            throw err;
+        }
     }
+
 
 }
 

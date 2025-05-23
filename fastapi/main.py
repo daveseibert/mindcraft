@@ -1,9 +1,18 @@
+
+import json
+from typing import Optional, Any
 from fastapi import FastAPI, Request, status, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, RedirectResponse
+from openai import OpenAI
+from pydantic import BaseModel
+import redis.asyncio as redis
+import numpy as np
 
 app = FastAPI()
+redis_client = redis.Redis(host='redis', port=6379, decode_responses=True)
+
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
@@ -23,3 +32,60 @@ def get_coffee():
 @app.get("/", include_in_schema=False)
 async def docs_redirect():
     return RedirectResponse(url='/docs')
+
+class CompletionRequest(BaseModel):
+    model: Optional[str] = "gpt-3.5-turbo"
+    messages: list
+    stop: Optional[Any] = None
+
+class EmbeddingsRequest(BaseModel):
+    model: Optional[str] = "text-embedding-3-small"
+    input: str
+
+
+@app.post("/create_completions")
+async def create_completions(req: CompletionRequest):
+    client = OpenAI()
+
+    # print(req)
+
+    response = client.chat.completions.create(
+        model=req.model,
+        messages=req.messages,
+        stop=req.stop if req.stop else None,
+        # max_tokens=7,
+        # temperature=0
+    )
+    if response.choices and len(response.choices) > 0:
+        return {"content": response.choices[0].message.content}
+    return {"content": "No response generated"}
+
+
+@app.post("/embeddings")
+async def get_embeddings(req: EmbeddingsRequest):
+    cache_key = f"emb:{req.model}:{req.input}"
+
+    # Try to get from cache first
+    cached = await redis_client.get(cache_key)
+    if cached:
+        return [{"embedding": json.loads(cached)}]
+
+    client = OpenAI()
+    try:
+        response = client.embeddings.create(
+            model=req.model,
+            input=req.input,
+            encoding_format="float"
+        )
+        embedding = response.data[0].embedding
+
+        # Cache the result
+        await redis_client.set(cache_key, json.dumps(embedding))
+
+        return [{"embedding": embedding}]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ... rest of your FastAPI code ...
+
+
