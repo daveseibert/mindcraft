@@ -58,8 +58,14 @@ async def create_completions(req: CompletionRequest):
 
     cached = await redis_client.get(cache_key)
     if cached:
+        cached_content = json.loads(cached)
+        if cached_content is None:
+            return JSONResponse(
+                content={"content": ""},
+                status_code=200
+            )
         return JSONResponse(
-            content=[{"content": json.loads(cached)}],
+            content={"content": cached_content},
             status_code=200
         )
 
@@ -74,11 +80,12 @@ async def create_completions(req: CompletionRequest):
         )
         print(response)
         if response.choices and len(response.choices) > 0:
-            content = response.choices[0].message.content
+            content = response.choices[0].message.content or ""
         else:
             content = "No response generated"
 
-        await redis_client.set(cache_key, json.dumps(content))
+        if content:
+            await redis_client.set(cache_key, json.dumps(content))
 
         return JSONResponse(
             content={"content": content},
