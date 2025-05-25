@@ -1,18 +1,3 @@
-FROM node:22 AS node-base
-
-WORKDIR /app
-
-COPY mindserver/package.json .
-COPY mindserver/mind_server.js .
-COPY mindserver/public/ ./public/
-COPY mindserver/entrypoint.js .
-
-RUN npm install
-
-EXPOSE 8080
-
-CMD ["npm", "start"]
-
 
 FROM itzg/minecraft-server:latest AS world-base
 

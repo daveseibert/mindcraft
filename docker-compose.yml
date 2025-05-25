@@ -7,8 +7,7 @@ include:
 services:
   mindserver:
     build:
-      context: .
-      target: mindserver
+      context: mindserver
     ports:
       - "8080:8080"
     environment:
