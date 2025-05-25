@@ -6,22 +6,22 @@ import { stringifyTurns } from '../utils/text.js';
 import { getCommand } from '../agent/commands/index.js';
 import settings from '../../settings.js';
 
-import { Gemini } from './gemini.js';
+// import { Gemini } from './gemini.js';
 import { GPT } from './gpt.js';
 import { Claude } from './claude.js';
-import { Mistral } from './mistral.js';
-import { ReplicateAPI } from './replicate.js';
-import { Local } from './local.js';
-import { Novita } from './novita.js';
-import { GroqCloudAPI } from './groq.js';
-import { HuggingFace } from './huggingface.js';
-import { Qwen } from "./qwen.js";
-import { Grok } from "./grok.js";
-import { DeepSeek } from './deepseek.js';
-import { Hyperbolic } from './hyperbolic.js';
-import { GLHF } from './glhf.js';
-import { OpenRouter } from './openrouter.js';
-import { VLLM } from './vllm.js';
+// import { Mistral } from './mistral.js';
+// import { ReplicateAPI } from './replicate.js';
+// import { Local } from './local.js';
+// import { Novita } from './novita.js';
+// import { GroqCloudAPI } from './groq.js';
+// import { HuggingFace } from './huggingface.js';
+// import { Qwen } from "./qwen.js";
+// import { Grok } from "./grok.js";
+// import { DeepSeek } from './deepseek.js';
+// import { Hyperbolic } from './hyperbolic.js';
+// import { GLHF } from './glhf.js';
+// import { OpenRouter } from './openrouter.js';
+// import { VLLM } from './vllm.js';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -94,22 +94,22 @@ export class Prompter {
         console.log('Using embedding settings:', embedding);
 
         try {
-            if (embedding.api === 'google')
-                this.embedding_model = new Gemini(embedding.model, embedding.url);
-            else if (embedding.api === 'openai')
+            // if (embedding.api === 'google')
+            //     this.embedding_model = new Gemini(embedding.model, embedding.url);
+            if (embedding.api === 'openai')
                 this.embedding_model = new GPT(embedding.model, embedding.url);
-            else if (embedding.api === 'replicate')
-                this.embedding_model = new ReplicateAPI(embedding.model, embedding.url);
-            else if (embedding.api === 'ollama')
-                this.embedding_model = new Local(embedding.model, embedding.url);
-            else if (embedding.api === 'qwen')
-                this.embedding_model = new Qwen(embedding.model, embedding.url);
-            else if (embedding.api === 'mistral')
-                this.embedding_model = new Mistral(embedding.model, embedding.url);
-            else if (embedding.api === 'huggingface')
-                this.embedding_model = new HuggingFace(embedding.model, embedding.url);
-            else if (embedding.api === 'novita')
-                this.embedding_model = new Novita(embedding.model, embedding.url);
+            // else if (embedding.api === 'replicate')
+            //     this.embedding_model = new ReplicateAPI(embedding.model, embedding.url);
+            // else if (embedding.api === 'ollama')
+            //     this.embedding_model = new Local(embedding.model, embedding.url);
+            // else if (embedding.api === 'qwen')
+            //     this.embedding_model = new Qwen(embedding.model, embedding.url);
+            // else if (embedding.api === 'mistral')
+            //     this.embedding_model = new Mistral(embedding.model, embedding.url);
+            // else if (embedding.api === 'huggingface')
+            //     this.embedding_model = new HuggingFace(embedding.model, embedding.url);
+            // else if (embedding.api === 'novita')
+            //     this.embedding_model = new Novita(embedding.model, embedding.url);
             else {
                 this.embedding_model = null;
                 let embedding_name = embedding ? embedding.api : '[NOT SPECIFIED]'
@@ -136,40 +136,40 @@ export class Prompter {
             profile = {model: profile};
         }
         if (!profile.api) {
-            if (profile.model.includes('openrouter/'))
-                profile.api = 'openrouter'; // must do first because shares names with other models
-            else if (profile.model.includes('ollama/'))
-                profile.api = 'ollama'; // also must do early because shares names with other models
-            else if (profile.model.includes('gemini'))
-                profile.api = 'google';
-            else if (profile.model.includes('vllm/'))
-                profile.api = 'vllm';
-            else if (profile.model.includes('gpt') || profile.model.includes('o1')|| profile.model.includes('o3'))
+            // if (profile.model.includes('openrouter/'))
+            //     profile.api = 'openrouter'; // must do first because shares names with other models
+            // else if (profile.model.includes('ollama/'))
+            //     profile.api = 'ollama'; // also must do early because shares names with other models
+            // else if (profile.model.includes('gemini'))
+            //     profile.api = 'google';
+            // else if (profile.model.includes('vllm/'))
+            //     profile.api = 'vllm';
+            if (profile.model.includes('gpt') || profile.model.includes('o1')|| profile.model.includes('o3'))
                 profile.api = 'openai';
             else if (profile.model.includes('claude'))
                 profile.api = 'anthropic';
-            else if (profile.model.includes('huggingface/'))
-                profile.api = "huggingface";
-            else if (profile.model.includes('replicate/'))
-                profile.api = 'replicate';
-            else if (profile.model.includes('mistralai/') || profile.model.includes("mistral/"))
-                model_profile.api = 'mistral';
-            else if (profile.model.includes("groq/") || profile.model.includes("groqcloud/"))
-                profile.api = 'groq';
-            else if (profile.model.includes("glhf/"))
-                profile.api = 'glhf';
-            else if (profile.model.includes("hyperbolic/"))
-                profile.api = 'hyperbolic';
-            else if (profile.model.includes('novita/'))
-                profile.api = 'novita';
-            else if (profile.model.includes('qwen'))
-                profile.api = 'qwen';
-            else if (profile.model.includes('grok'))
-                profile.api = 'xai';
-            else if (profile.model.includes('deepseek'))
-                profile.api = 'deepseek';
-	        else if (profile.model.includes('mistral'))
-                profile.api = 'mistral';
+            // else if (profile.model.includes('huggingface/'))
+            //     profile.api = "huggingface";
+            // else if (profile.model.includes('replicate/'))
+            //     profile.api = 'replicate';
+            // else if (profile.model.includes('mistralai/') || profile.model.includes("mistral/"))
+            //     model_profile.api = 'mistral';
+            // else if (profile.model.includes("groq/") || profile.model.includes("groqcloud/"))
+            //     profile.api = 'groq';
+            // else if (profile.model.includes("glhf/"))
+            //     profile.api = 'glhf';
+            // else if (profile.model.includes("hyperbolic/"))
+            //     profile.api = 'hyperbolic';
+            // else if (profile.model.includes('novita/'))
+            //     profile.api = 'novita';
+            // else if (profile.model.includes('qwen'))
+            //     profile.api = 'qwen';
+            // else if (profile.model.includes('grok'))
+            //     profile.api = 'xai';
+            // else if (profile.model.includes('deepseek'))
+            //     profile.api = 'deepseek';
+	        // else if (profile.model.includes('mistral'))
+            //     profile.api = 'mistral';
             else 
                 throw new Error('Unknown model:', profile.model);
         }
@@ -177,38 +177,38 @@ export class Prompter {
     }
     _createModel(profile) {
         let model = null;
-        if (profile.api === 'google')
-            model = new Gemini(profile.model, profile.url, profile.params);
-        else if (profile.api === 'openai')
+        // if (profile.api === 'google')
+        //     model = new Gemini(profile.model, profile.url, profile.params);
+        if (profile.api === 'openai')
             model = new GPT(profile.model, profile.url, profile.params);
         else if (profile.api === 'anthropic')
             model = new Claude(profile.model, profile.url, profile.params);
-        else if (profile.api === 'replicate')
-            model = new ReplicateAPI(profile.model.replace('replicate/', ''), profile.url, profile.params);
-        else if (profile.api === 'ollama')
-            model = new Local(profile.model.replace('ollama/', ''), profile.url, profile.params);
-        else if (profile.api === 'mistral')
-            model = new Mistral(profile.model, profile.url, profile.params);
-        else if (profile.api === 'groq')
-            model = new GroqCloudAPI(profile.model.replace('groq/', '').replace('groqcloud/', ''), profile.url, profile.params);
-        else if (profile.api === 'huggingface')
-            model = new HuggingFace(profile.model, profile.url, profile.params);
-        else if (profile.api === 'glhf')
-            model = new GLHF(profile.model.replace('glhf/', ''), profile.url, profile.params);
-        else if (profile.api === 'hyperbolic')
-            model = new Hyperbolic(profile.model.replace('hyperbolic/', ''), profile.url, profile.params);
-        else if (profile.api === 'novita')
-            model = new Novita(profile.model.replace('novita/', ''), profile.url, profile.params);
-        else if (profile.api === 'qwen')
-            model = new Qwen(profile.model, profile.url, profile.params);
-        else if (profile.api === 'xai')
-            model = new Grok(profile.model, profile.url, profile.params);
-        else if (profile.api === 'deepseek')
-            model = new DeepSeek(profile.model, profile.url, profile.params);
-        else if (profile.api === 'openrouter')
-            model = new OpenRouter(profile.model.replace('openrouter/', ''), profile.url, profile.params);
-        else if (profile.api === 'vllm')
-            model = new VLLM(profile.model.replace('vllm/', ''), profile.url, profile.params);
+        // else if (profile.api === 'replicate')
+        //     model = new ReplicateAPI(profile.model.replace('replicate/', ''), profile.url, profile.params);
+        // else if (profile.api === 'ollama')
+        //     model = new Local(profile.model.replace('ollama/', ''), profile.url, profile.params);
+        // else if (profile.api === 'mistral')
+        //     model = new Mistral(profile.model, profile.url, profile.params);
+        // else if (profile.api === 'groq')
+        //     model = new GroqCloudAPI(profile.model.replace('groq/', '').replace('groqcloud/', ''), profile.url, profile.params);
+        // else if (profile.api === 'huggingface')
+        //     model = new HuggingFace(profile.model, profile.url, profile.params);
+        // else if (profile.api === 'glhf')
+        //     model = new GLHF(profile.model.replace('glhf/', ''), profile.url, profile.params);
+        // else if (profile.api === 'hyperbolic')
+        //     model = new Hyperbolic(profile.model.replace('hyperbolic/', ''), profile.url, profile.params);
+        // else if (profile.api === 'novita')
+        //     model = new Novita(profile.model.replace('novita/', ''), profile.url, profile.params);
+        // else if (profile.api === 'qwen')
+        //     model = new Qwen(profile.model, profile.url, profile.params);
+        // else if (profile.api === 'xai')
+        //     model = new Grok(profile.model, profile.url, profile.params);
+        // else if (profile.api === 'deepseek')
+        //     model = new DeepSeek(profile.model, profile.url, profile.params);
+        // else if (profile.api === 'openrouter')
+        //     model = new OpenRouter(profile.model.replace('openrouter/', ''), profile.url, profile.params);
+        // else if (profile.api === 'vllm')
+        //     model = new VLLM(profile.model.replace('vllm/', ''), profile.url, profile.params);
         else
             throw new Error('Unknown API:', profile.api);
         return model;
