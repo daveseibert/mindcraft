@@ -47,8 +47,6 @@ class EmbeddingsRequest(BaseModel):
 async def create_completions(req: CompletionRequest):
     client = OpenAI()
 
-    # print(req)
-
     response = client.chat.completions.create(
         model=req.model,
         messages=req.messages,
@@ -65,10 +63,12 @@ async def create_completions(req: CompletionRequest):
 async def get_embeddings(req: EmbeddingsRequest):
     cache_key = f"emb:{req.model}:{req.input}"
 
-    # Try to get from cache first
     cached = await redis_client.get(cache_key)
     if cached:
-        return [{"embedding": json.loads(cached)}]
+        return JSONResponse(
+            content=[{"embedding": json.loads(cached)}],
+            status_code=200
+        )
 
     client = OpenAI()
     try:
@@ -79,13 +79,13 @@ async def get_embeddings(req: EmbeddingsRequest):
         )
         embedding = response.data[0].embedding
 
-        # Cache the result
         await redis_client.set(cache_key, json.dumps(embedding))
 
-        return [{"embedding": embedding}]
+        return JSONResponse(
+            content=[{"embedding": embedding}],
+            status_code=201
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-# ... rest of your FastAPI code ...
 
 

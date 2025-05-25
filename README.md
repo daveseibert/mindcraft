@@ -9,4 +9,8 @@ This repo will focus on dockerization and running a server for the bot to join.
 - [X] Add a third model (Gemini; logs in, great attitude, keeps disconnecting)
 - [X] Move bots to individual containers
 - [X] Run Minecraft servers on Raspberry Pi
-- [ ] Run agents on Raspberry Pi
+- [ ] Run agents on Raspberry Pi (it's not building for arm64 for reasons unknown, at this time)
+- [X] Move API calls to FastAPI container
+- [X] Cache embeddings in Redis
+- [ ] Cache completions in Redis
+
