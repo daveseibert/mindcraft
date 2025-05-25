@@ -14,4 +14,6 @@ This repo will focus on dockerization and running a server for the bot to join.
 - [X] Cache embeddings in Redis
 - [X] Cache completions in Redis
 - [X] Move Mindserver to separate container
+- [X] Independent Dockerfiles/build contexts for fastapi (OpenAI API+Redis wrapper), agents, mindserver, and worlds (Minecraft servers)
+- [ ] Integrate tasks with fastapi
 
