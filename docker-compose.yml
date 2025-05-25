@@ -23,8 +23,7 @@ services:
       - mind_network
   fastapi:
     build:
-      context: .
-      target: fastapi
+      context: fastapi
     ports:
       - "8008:80"
     environment:
