@@ -22,6 +22,9 @@ services:
     command: ["fastapi", "run", "main.py", "--port", "80", "--reload"]
     networks:
       - mind_network
+    depends_on:
+      redis:
+        condition: service_started
     develop:
       watch:
         - action: sync
