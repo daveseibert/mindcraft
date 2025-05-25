@@ -1,5 +1,6 @@
 
 import json
+import hashlib
 from typing import Optional, Any
 from fastapi import FastAPI, Request, status, HTTPException
 from fastapi.encoders import jsonable_encoder
@@ -37,6 +38,7 @@ class CompletionRequest(BaseModel):
     model: Optional[str] = "gpt-3.5-turbo"
     messages: list
     stop: Optional[Any] = None
+    # max_tokens: Optional[int] = 7
 
 class EmbeddingsRequest(BaseModel):
     model: Optional[str] = "text-embedding-3-small"
@@ -45,23 +47,54 @@ class EmbeddingsRequest(BaseModel):
 
 @app.post("/create_completions")
 async def create_completions(req: CompletionRequest):
-    client = OpenAI()
+    hashed = hashlib.sha256(
+        json.dumps({
+            'messages': req.messages,
+            'stop': req.stop,
+            # 'max_tokens': req.max_tokens,
+        }, sort_keys=True).encode()
+    ).hexdigest()
+    cache_key = f"comp:{req.model}:{hashed}"
 
-    response = client.chat.completions.create(
-        model=req.model,
-        messages=req.messages,
-        stop=req.stop if req.stop else None,
-        # max_tokens=7,
-        # temperature=0
-    )
-    if response.choices and len(response.choices) > 0:
-        return {"content": response.choices[0].message.content}
-    return {"content": "No response generated"}
+    cached = await redis_client.get(cache_key)
+    if cached:
+        return JSONResponse(
+            content=[{"content": json.loads(cached)}],
+            status_code=200
+        )
+
+    client = OpenAI()
+    try:
+        response = client.chat.completions.create(
+            model=req.model,
+            messages=req.messages,
+            stop=req.stop if req.stop else None,
+            # max_tokens=req.max_tokens,
+            # temperature=0
+        )
+        print(response)
+        if response.choices and len(response.choices) > 0:
+            content = response.choices[0].message.content
+        else:
+            content = "No response generated"
+
+        await redis_client.set(cache_key, json.dumps(content))
+
+        return JSONResponse(
+            content={"content": content},
+            status_code=201
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 
 @app.post("/embeddings")
 async def get_embeddings(req: EmbeddingsRequest):
-    cache_key = f"emb:{req.model}:{req.input}"
+    hashed = hashlib.sha256(
+        json.dumps(req.input, sort_keys=True).encode()
+    ).hexdigest()
+    cache_key = f"emb:{req.model}:{hashed}"
 
     cached = await redis_client.get(cache_key)
     if cached:

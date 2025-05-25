@@ -12,5 +12,6 @@ This repo will focus on dockerization and running a server for the bot to join.
 - [ ] Run agents on Raspberry Pi (it's not building for arm64 for reasons unknown, at this time)
 - [X] Move API calls to FastAPI container
 - [X] Cache embeddings in Redis
-- [ ] Cache completions in Redis
+- [X] Cache completions in Redis
+- [ ] Move Mindserver to separate container
 
