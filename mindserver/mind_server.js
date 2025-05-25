@@ -130,7 +130,7 @@ export function createMindServer(port = 8080) {
 		});
     });
 
-    server.listen(port, 'localhost', () => {
+    server.listen(port, '0.0.0.0', () => {
         console.log(`MindServer running on port ${port}`);
     });
 

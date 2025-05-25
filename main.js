@@ -2,7 +2,6 @@ import { AgentProcess } from './src/process/agent_process.js';
 import settings from './settings.js';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { createMindServer } from './src/server/mind_server.js';
 import { mainProxy } from './src/process/main_proxy.js';
 import { readFileSync } from 'fs';
 
@@ -30,9 +29,6 @@ function getProfiles(args) {
 }
 
 async function main() {
-    if (settings.host_mindserver) {
-        const mindServer = createMindServer(settings.mindserver_port);
-    }
     mainProxy.connect();
 
     const args = parseArguments();

@@ -6,9 +6,9 @@ const settings = {
 
     // the mindserver manages all agents and hosts the UI
     "host_mindserver": true, // if true, the mindserver will be hosted on this machine. otherwise, specify a public IP address
-    "mindserver_host": "0.0.0.0",
-    "mindserver_port": 8080,
-    
+    "mindserver_host": process.env.MINDSERVER_HOST || 'mindserver',
+    "mindserver_port": process.env.MINDSERVER_PORT || 8080,
+
     // the base profile is shared by all bots for default prompts/examples/modes
     "base_profile": "./profiles/defaults/god_mode.json", // also see creative.json, god_mode.json
     "profiles": [

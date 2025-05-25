@@ -13,5 +13,5 @@ This repo will focus on dockerization and running a server for the bot to join.
 - [X] Move API calls to FastAPI container
 - [X] Cache embeddings in Redis
 - [X] Cache completions in Redis
-- [ ] Move Mindserver to separate container
+- [X] Move Mindserver to separate container
 
