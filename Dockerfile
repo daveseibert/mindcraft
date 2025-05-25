@@ -61,9 +61,7 @@ RUN --mount=type=bind,source=package.json,target=package.json \
 
 COPY bots/ ./bots/
 COPY profiles/ ./profiles/
-COPY services/ ./services/
 COPY src/ ./src/
-COPY tasks/ ./tasks/
 COPY andy.json .
 COPY settings.js .
 COPY viewer.html .
