@@ -1,4 +1,3 @@
-
 FROM itzg/minecraft-server:latest AS world-base
 
 ENV TZ="America/New_York"

@@ -3,7 +3,7 @@ x-common:
     tty: true
     stdin_open: true
     build: &common-world-building
-      context: .
+      context: worlds
       platforms:
         - "linux/amd64"
         - "linux/arm64"
