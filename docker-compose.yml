@@ -11,9 +11,26 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - MINDSERVER_PORT=8080
+      MINDSERVER_PORT: 8080
+      OPENAI_API_KEY:
+      NODE_ENV: production
     networks:
       - mind_network
+    depends_on:
+      - redis
+    command: ["npm", "run", "dev"]
+    develop:
+      watch:
+        - action: sync
+          path: ./mindserver/src
+          target: /app/src
+          ignore:
+            - node_modules/
+        - action: sync
+          path: ./mindserver/public
+          target: /app/public
+        - action: rebuild
+          path: mindserver/package.json
   registry:
     image: registry:2.7
     ports:

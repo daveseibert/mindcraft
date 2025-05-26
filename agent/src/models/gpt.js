@@ -6,6 +6,7 @@ export class GPT {
     constructor(model_name, url, params) {
         this.model_name = model_name;
         this.params = params;
+        this.baseUrl = url || 'http://mindserver:8080/api'
 
         let config = {};
         if (url)
@@ -25,6 +26,7 @@ export class GPT {
         const pack = {
             model: this.model_name || "gpt-3.5-turbo",
             messages,
+            provider: 'openai',
             stop: stop_seq,
             ...(this.params || {})
         };
@@ -32,63 +34,37 @@ export class GPT {
             delete pack.stop;
         }
 
-        const url = "http://fastapi/create_completions";
-        // try {
-        //     const response = await fetch(url, {
-        //         method: "POST",
-        //         body: JSON.stringify(pack),
-        //         // …
-        //     });
-        //     if (!response.ok) {
-        //         console.error(response.status);
-        //         console.log(response.json());
-        //         throw new Error(`Response status: ${response.status}`);
-        //     }
-        //
-        //     const json = await response.json();
-        //     console.log(json);
-        // } catch (error) {
-        //     console.error(error.message);
-        // }
-
-        let res = null;
-
         try {
-            console.log('Awaiting openai api response from model', this.model_name)
-            // console.log('Messages:', messages);
-            const response = await fetch(url, {
+            console.log('Awaiting OpenAI API response from model', this.model_name);
+            const response = await fetch(`${this.baseUrl}/create_completions`, {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(pack),
-                // …
+                body: JSON.stringify(pack)
             });
-            let response_json = await response.json();
-            res = response_json.content;
-            console.log(res);
+
             if (!response.ok) {
                 throw new Error(`Response status: ${response.status}`);
             }
-            // let completion = await this.openai.chat.completions.create(pack);
-            // if (completion.choices[0].finish_reason == 'length')
-            //     throw new Error('Context length exceeded');
-            // console.log('Received.')
-            // res = completion.choices[0].message.content;
-        }
-        catch (err) {
-            if ((err.message == 'Context length exceeded' || err.code == 'context_length_exceeded') && turns.length > 1) {
+
+            const result = await response.json();
+            console.log('Received response');
+            return result.content;
+        } catch (err) {
+            if ((err.message.includes('context_length_exceeded') ||
+                    err.message.includes('maximum context length')) &&
+                turns.length > 1) {
                 console.log('Context length exceeded, trying again with shorter context.');
                 return await this.sendRequest(turns.slice(1), systemMessage, stop_seq);
-            } else if (err.message.includes('image_url')) {
+            } else if (err.message.includes('image')) {
                 console.log(err);
-                res = 'Vision is only supported by certain models.';
+                return 'Vision is only supported by certain models.';
             } else {
                 console.log(err);
-                res = 'My brain disconnected, try again.';
+                return 'My brain disconnected, try again.';
             }
         }
-        return res;
     }
 
     async sendVisionRequest(messages, systemMessage, imageBuffer) {
@@ -105,42 +81,82 @@ export class GPT {
                 }
             ]
         });
-        
-        return this.sendRequest(imageMessages, systemMessage);
+
+        const pack = {
+            model: this.model_name || "gpt-4-vision-preview",
+            messages: strictFormat(imageMessages),
+            provider: 'openai',
+            ...(this.params || {})
+        };
+
+        try {
+            const response = await fetch(`${this.baseUrl}/create_completions`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(pack)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Response status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            return result.content;
+        } catch (err) {
+            console.log(err);
+            return 'Error processing vision request. Try again.';
+        }
     }
 
     async embed(text) {
-        const url = "http://fastapi/embeddings";
         if (text.length > 8191) {
             text = text.slice(0, 8191);
         }
 
         try {
-            const model = this.model_name || "text-embedding-3-small";
-            const response = await fetch(url, {
+            // Add debug logging
+            console.log('Sending embedding request to:', `${this.baseUrl}/embeddings`);
+            console.log('Request payload:', {
+                model: this.model_name || "text-embedding-3-small",
+                input: text,
+                provider: 'openai'
+            });
+
+            const response = await fetch(`${this.baseUrl}/embeddings`, {
                 method: "POST",
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 },
                 body: JSON.stringify({
-                    model: model,
-                    input: text
+                    model: this.model_name || "text-embedding-3-small",
+                    input: text,
+                    provider: 'openai'
                 })
             });
 
             if (!response.ok) {
-                throw new Error(`Embedding request failed with status: ${response.status}`);
+                const errorText = await response.text();
+                console.error('Embedding error response:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    body: errorText
+                });
+                throw new Error(`Embedding request failed with status: ${response.status}\nResponse: ${errorText}`);
             }
 
-            const embeddings = await response.json();
-            console.log('Embedding response received.');
+            const result = await response.json();
+            console.log('Embedding response received:', result);
 
-            if (!Array.isArray(embeddings) || !embeddings[0]?.embedding) {
-                console.error('Invalid embedding response format:', embeddings);
+            // Check if the response matches the expected format
+            if (!Array.isArray(result) || !result[0]?.embedding) {
+                console.error('Unexpected response format:', result);
                 throw new Error('Invalid embedding response format');
             }
 
-            return embeddings[0].embedding;
+            return result[0].embedding;
         } catch (err) {
             console.error('Embedding error:', err);
             throw err;

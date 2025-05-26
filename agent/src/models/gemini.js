@@ -1,12 +1,10 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { toSinglePrompt, strictFormat } from '../utils/text.js';
-import { getKey } from '../utils/keys.js';
 
 export class Gemini {
     constructor(model_name, url, params) {
         this.model_name = model_name;
-        this.params = params;
-        this.url = url;
+        this.params = params || {};
+        this.baseUrl = url || 'http://mindserver:8080/api';
         this.safetySettings = [
             {
                 "category": "HARM_CATEGORY_DANGEROUS",
@@ -29,132 +27,126 @@ export class Gemini {
                 "threshold": "BLOCK_NONE",
             },
         ];
-
-        this.genAI = new GoogleGenerativeAI(getKey('GEMINI_API_KEY'));
     }
 
     async sendRequest(turns, systemMessage) {
-        let model;
-        const modelConfig = {
-            model: this.model_name || "gemini-1.5-flash",
-            // systemInstruction does not work bc google is trash
+        const messages = [
+            { role: 'system', content: systemMessage },
+            ...strictFormat(turns)
+        ];
+
+        const pack = {
+            model: this.model_name || "gemini-1.5-pro",
+            messages,
+            provider: 'gemini',
+            safetySettings: this.safetySettings,
+            ...(this.params || {})
         };
-        if (this.url) {
-            model = this.genAI.getGenerativeModel(
-                modelConfig,
-                { baseUrl: this.url },
-                { safetySettings: this.safetySettings }
-            );
-        } else {
-            model = this.genAI.getGenerativeModel(
-                modelConfig,
-                { safetySettings: this.safetySettings }
-            );
-        }
 
-        console.log('Awaiting Google API response...');
-
-        turns.unshift({ role: 'system', content: systemMessage });
-        turns = strictFormat(turns);
-        let contents = [];
-        for (let turn of turns) {
-            contents.push({
-                role: turn.role === 'assistant' ? 'model' : 'user',
-                parts: [{ text: turn.content }]
+        try {
+            console.log('Awaiting Gemini API response...');
+            const response = await fetch(`${this.baseUrl}/create_completions`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(pack)
             });
-        }
 
-        const result = await model.generateContent({
-            contents,
-            generationConfig: {
-                ...(this.params || {})
+            if (!response.ok) {
+                throw new Error(`Response status: ${response.status}`);
             }
-        });
-        const response = await result.response;
-        let text;
 
-        // Handle "thinking" models since they smart 
-        if (this.model_name && this.model_name.includes("thinking")) {
-            if (
-                response.candidates &&
-                response.candidates.length > 0 &&
-                response.candidates[0].content &&
-                response.candidates[0].content.parts &&
-                response.candidates[0].content.parts.length > 1
-            ) {
-                text = response.candidates[0].content.parts[1].text;
-            } else {
-                console.warn("Unexpected response structure for thinking model:", response);
-                text = response.text();
+            const result = await response.json();
+            console.log('Received.');
+
+            // Handle "thinking" models
+            if (this.model_name?.includes("thinking")) {
+                const parts = result.content.split('\n');
+                return parts.length > 1 ? parts[1] : result.content;
             }
-        } else {
-            text = response.text();
+
+            return result.content;
+        } catch (err) {
+            console.log(err);
+            return "My brain disconnected, try again.";
         }
-
-        console.log('Received.');
-
-        return text;
     }
 
     async sendVisionRequest(turns, systemMessage, imageBuffer) {
-        let model;
-        if (this.url) {
-            model = this.genAI.getGenerativeModel(
-                { model: this.model_name || "gemini-1.5-flash" },
-                { baseUrl: this.url },
-                { safetySettings: this.safetySettings }
-            );
-        } else {
-            model = this.genAI.getGenerativeModel(
-                { model: this.model_name || "gemini-1.5-flash" },
-                { safetySettings: this.safetySettings }
-            );
-        }
+        const messages = [...turns];
+        messages.push({
+            role: "user",
+            content: [
+                {
+                    type: "text",
+                    text: systemMessage
+                },
+                {
+                    type: "image",
+                    image_url: {
+                        url: `data:image/jpeg;base64,${imageBuffer.toString('base64')}`
+                    }
+                }
+            ]
+        });
 
-        const imagePart = {
-            inlineData: {
-                data: imageBuffer.toString('base64'),
-                mimeType: 'image/jpeg'
-            }
+        const pack = {
+            model: this.model_name || "gemini-pro-vision",
+            messages: strictFormat(messages),
+            provider: 'gemini',
+            safetySettings: this.safetySettings,
+            ...(this.params || {})
         };
 
-        const stop_seq = '***';
-        const prompt = toSinglePrompt(turns, systemMessage, stop_seq, 'model');
-        let res = null;
         try {
-            console.log('Awaiting Google API vision response...');
-            const result = await model.generateContent([prompt, imagePart]);
-            const response = await result.response;
-            const text = response.text();
-            console.log('Received.');
-            if (!text.includes(stop_seq)) return text;
-            const idx = text.indexOf(stop_seq);
-            res = text.slice(0, idx);
+            console.log('Awaiting Gemini API vision response...');
+            const response = await fetch(`${this.baseUrl}/create_completions`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(pack)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Response status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            return result.content;
         } catch (err) {
             console.log(err);
-            if (err.message.includes("Image input modality is not enabled for models/")) {
-                res = "Vision is only supported by certain models.";
-            } else {
-                res = "An unexpected error occurred, please try again.";
+            if (err.message.includes("vision") || err.message.includes("image")) {
+                return "Vision is only supported by certain models.";
             }
+            return "An unexpected error occurred, please try again.";
         }
-        return res;
     }
 
     async embed(text) {
-        let model;
-        if (this.url) {
-            model = this.genAI.getGenerativeModel(
-                { model: "text-embedding-004" },
-                { baseUrl: this.url }
-            );
-        } else {
-            model = this.genAI.getGenerativeModel(
-                { model: "text-embedding-004" }
-            );
-        }
+        try {
+            const response = await fetch(`${this.baseUrl}/embeddings`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: "embedding-001",
+                    input: text,
+                    provider: 'gemini'
+                })
+            });
 
-        const result = await model.embedContent(text);
-        return result.embedding.values;
+            if (!response.ok) {
+                throw new Error(`Response status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            return result[0].embedding;
+        } catch (err) {
+            console.error('Embedding error:', err);
+            throw new Error('Failed to generate embeddings');
+        }
     }
 }
