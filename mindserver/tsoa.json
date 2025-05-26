@@ -1,14 +1,15 @@
 {
   "entryFile": "src/entrypoint.ts",
   "noImplicitAdditionalProperties": "throw-on-extras",
-  "controllerPathGlobs": ["src/**/*Controller.ts"],
+  "controllerPathGlobs": ["src/**/*Controller.ts", "src/**/apiRoutes.ts"],
   "spec": {
     "outputDirectory": "public",
     "specVersion": 3
   },
   "routes": {
-    "routesDir": "src/generated",
-    "middleware": "express"
+    "routesDir": "src/routes",
+    "middleware": "express",
+    "esm": true
   },
   "compilerOptions": {
     "baseUrl": ".",

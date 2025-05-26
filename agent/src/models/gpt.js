@@ -6,7 +6,7 @@ export class GPT {
     constructor(model_name, url, params) {
         this.model_name = model_name;
         this.params = params;
-        this.baseUrl = url || 'http://mindserver:8080/api'
+        this.baseUrl = url || 'http://fastapi:80'
 
         let config = {};
         if (url)
@@ -45,11 +45,21 @@ export class GPT {
             });
 
             if (!response.ok) {
-                throw new Error(`Response status: ${response.status}`);
+                const errorText = await response.text();
+                console.error('API error:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    body: errorText
+                });
+                throw new Error(`API request failed: ${errorText}`);
             }
 
             const result = await response.json();
-            console.log('Received response');
+            console.log('Response received:', result);
+            if (!result.content) {
+                console.error('Empty content in response:', result);
+                throw new Error('Empty response from API');
+            }
             return result.content;
         } catch (err) {
             if ((err.message.includes('context_length_exceeded') ||
@@ -148,7 +158,7 @@ export class GPT {
             }
 
             const result = await response.json();
-            console.log('Embedding response received:', result);
+            // console.log('Embedding response received:', result);
 
             // Check if the response matches the expected format
             if (!Array.isArray(result) || !result[0]?.embedding) {

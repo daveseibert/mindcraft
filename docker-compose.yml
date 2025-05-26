@@ -18,7 +18,7 @@ services:
       - mind_network
     depends_on:
       - redis
-    command: ["npm", "run", "dev"]
+#    command: ["npm", "run", "dev"]
     develop:
       watch:
         - action: sync

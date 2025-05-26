@@ -14,8 +14,10 @@
   },
   "devDependencies": {
     "@types/express": "^4.17.17",
+    "@types/morgan": "^1.9.9",
     "@types/node": "^18.15.0",
     "@types/swagger-ui-express": "^4.1.8",
+    "morgan": "^1.10.0",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
     "typescript": "^4.9.5"
@@ -26,7 +28,7 @@
     "build_windows": "tsc",
     "build": "tsc",
     "start": "node dist/entrypoint.js",
-    "dev": "nodemon --watch src --ext ts,json --exec \"node --loader ts-node/esm src/entrypoint.js\"",
+    "dev": "nodemon --watch src --ext ts,json --exec \"node --loader ts-node/esm src/entrypoint.ts\"",
     "clean": "rm -rf dist public",
     "clean_windows": "if exist dist rmdir /s /q dist && if exist public rmdir /s /q public"
   }

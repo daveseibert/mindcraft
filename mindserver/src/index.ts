@@ -8,7 +8,9 @@ import { fileURLToPath } from 'url';
 import swaggerUi from 'swagger-ui-express';
 import router from './routes/apiRoutes.js';
 import { Agent, AgentManagers, InGameAgents, AgentMessage } from './types';
-import { RegisterRoutes } from './routes/routes';
+// @ts-ignore
+import { RegisterRoutes } from './routes/routes.js';
+import morgan from 'morgan';
 
 // Module-level variables
 let io: SocketIOServer;
@@ -22,15 +24,18 @@ export function createMindServer(port: number = 8080): http.Server {
     server = http.createServer(app);
     io = new SocketIOServer(server);
 
-    RegisterRoutes(app);
+    app.use(morgan('dev'))
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: true }));
 
-    app.get('/', (req, res) => {
-        res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
-    });
 
     // Serve static files
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
     app.use(express.static(path.join(__dirname, '..', 'public')));
+
+    app.get('/', (req, res) => {
+        res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+    });
 
     // Socket.io connection handling
     io.on('connection', (socket: Socket) => {
@@ -140,8 +145,6 @@ export function createMindServer(port: number = 8080): http.Server {
     });
 
     // Middleware
-    app.use(express.json());
-    app.use(express.static(path.join(__dirname, '..', 'public')));
 
     // API Documentation
     app.use('/docs', swaggerUi.serve, swaggerUi.setup(undefined, {
@@ -152,7 +155,9 @@ export function createMindServer(port: number = 8080): http.Server {
     }));
 
     // API Routes
-    app.use('/api', router);
+
+    RegisterRoutes(app);
+    // app.use('/api', router);
 
     server.listen(port, '0.0.0.0', () => {
         console.log(`MindServer running on port ${port}`);
