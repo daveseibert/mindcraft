@@ -1,19 +1,36 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
+    "lib": ["ESNext"],
+    "target": "ES2020",
     "module": "ESNext",
     "moduleResolution": "node",
-    "types": ["bun-types"],
     "esModuleInterop": true,
-    "strict": true,
-    "skipLibCheck": true,
-    "allowJs": true,
+    "moduleDetection": "force",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
+    "noEmit": true,
+    "composite": true,
+    "strict": true,
+    "downlevelIteration": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "allowJs": true,
     "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "sourceMap": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "paths": {
       "*": ["./src/types/*"]
-    }
+    },
+    "types": [
+      "bun-types"
+    ]
   },
-  "include": ["src/**/*"],
+  "include": [
+    "src/**/*"
+  ],
   "exclude": ["node_modules", "dist"]
 }

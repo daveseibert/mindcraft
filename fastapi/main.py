@@ -45,7 +45,7 @@ class EmbeddingsRequest(BaseModel):
     input: str
 
 
-@app.post("/create_completions")
+@app.post("/completions")
 async def create_completions(req: CompletionRequest):
     hashed = hashlib.sha256(
         json.dumps({
