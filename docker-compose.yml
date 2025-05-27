@@ -5,6 +5,24 @@ include:
   - docker-compose-agents.yaml
 
 services:
+  elysia:
+    build:
+      context: elysia
+    ports:
+      - "3000:3000"
+    environment:
+      OPENAI_API_KEY:
+#      NODE_ENV: production
+    networks:
+      - mind_network
+    depends_on:
+      - redis
+    command: ["bun", "dev"]
+    develop:
+      watch:
+        - action: sync
+          path: elysia
+          target: /app
   mindserver:
     build:
       context: mindserver
