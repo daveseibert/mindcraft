@@ -2,25 +2,69 @@ import React, { useState } from 'react';
 import { Block } from 'baseui/block';
 import { Button } from 'baseui/button';
 import { Input } from 'baseui/input';
-import { DisplayLarge } from 'baseui/typography';
-import { Tabs, Tab, StatefulTabs } from 'baseui/tabs-motion';
+import { DisplayLarge, DisplayMedium } from 'baseui/typography';
 import JSONPretty from 'react-json-pretty';
 import 'react-json-pretty/themes/monikai.css';
 
 interface ApiResponse {
     content?: string;
     error?: string;
+    status?: number;
 }
 
 function App() {
     const [inputText, setInputText] = useState<string>('');
     const [fastapiResponse, setFastapiResponse] = useState<ApiResponse | null>(null);
     const [elysiaResponse, setElysiaResponse] = useState<ApiResponse | null>(null);
-    const [activeKey, setActiveKey] = useState<React.Key>(0);
+    const [fastapiHealth, setFastapiHealth] = useState<ApiResponse | null>(null);
+    const [elysiaHealth, setElysiaHealth] = useState<ApiResponse | null>(null);
+
+    let fastapiUrl = 'http://localhost:8008';
+    let elysiaUrl = 'http://localhost:3002';
+
+    const checkFastAPIHealth = async () => {
+        try {
+            const response = await fetch(`${fastapiUrl}/health`);
+            const data = await response.json();
+            setFastapiHealth({ ...data, status: response.status });
+        } catch (error) {
+            if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+                setFastapiHealth({
+                    error: 'Connection refused - server may be down',
+                    status: 503
+                });
+            } else {
+                setFastapiHealth({
+                    error: error instanceof Error ? error.message : 'Unknown error',
+                    status: 500
+                });
+            }
+        }
+    };
+
+    const checkElysiaHealth = async () => {
+        try {
+            const response = await fetch(`${elysiaUrl}/health`);
+            const data = await response.json();
+            setElysiaHealth({ ...data, status: response.status });
+        } catch (error) {
+            if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+                setElysiaHealth({
+                    error: 'Connection refused - server may be down',
+                    status: 503
+                });
+            } else {
+                setElysiaHealth({
+                    error: error instanceof Error ? error.message : 'Unknown error',
+                    status: 500
+                });
+            }
+        }
+    };
 
     const callFastAPI = async () => {
         try {
-            const response = await fetch('http://localhost:8008/completions', {
+            const response = await fetch(`${fastapiUrl}/completions`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -30,17 +74,30 @@ function App() {
                     model: 'gpt-4',
                 }),
             });
+
             const data = await response.json();
-            setFastapiResponse(data);
+            setFastapiResponse({ ...data, status: response.status });
         } catch (error) {
-            setFastapiResponse({ error: 'Failed to fetch from FastAPI' });
+            if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+                setFastapiResponse({
+                    error: `Connection refused - server may be down`,
+                    status: 503
+                });
+            } else {
+                setFastapiResponse({
+                    error: error instanceof Error ? error.message : 'Unknown error',
+                    status: 500
+                });
+            }
         }
     };
 
     const callElysia = async () => {
         try {
-            const response = await fetch('http://localhost:3000/completions', {
+            const response = await fetch(`${elysiaUrl}/completions`, {
                 method: 'POST',
+                mode: 'cors',
+                credentials: 'omit',  // Add this line
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -49,11 +106,71 @@ function App() {
                     model: 'gpt-4',
                 }),
             });
+
             const data = await response.json();
-            setElysiaResponse(data);
+            setElysiaResponse({ ...data, status: response.status });
         } catch (error) {
-            setElysiaResponse({ error: 'Failed to fetch from Elysia' });
+            if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+                setElysiaResponse({
+                    error: 'Connection refused - server may be down',
+                    status: 503
+                });
+            } else {
+                setElysiaResponse({
+                    error: error instanceof Error ? error.message : 'Unknown error',
+                    status: 500
+                });
+            }
         }
+    };
+
+    const renderResponse = (response: ApiResponse | null) => {
+        if (!response) return null;
+
+        const statusColor = response.status && response.status >= 400 ?
+            'rgb(255, 82, 82)' : 'rgb(52, 168, 83)';
+
+        return (
+            <>
+                <Block
+                    marginBottom="scale200"
+                    overrides={{
+                        Block: {
+                            style: {
+                                color: statusColor,
+                                fontWeight: 500
+                            }
+                        }
+                    }}
+                >
+                    Status: {response.status}
+                </Block>
+                <JSONPretty data={response} />
+            </>
+        );
+    };
+
+    const renderHealthStatus = (health: ApiResponse | null) => {
+        if (!health) return null;
+
+        const statusColor = health.status && health.status >= 400 ?
+            'rgb(255, 82, 82)' : 'rgb(52, 168, 83)';
+
+        return (
+            <Block
+                marginBottom="scale200"
+                overrides={{
+                    Block: {
+                        style: {
+                            color: statusColor,
+                            fontWeight: 500
+                        }
+                    }
+                }}
+            >
+                Health Status: {health.status} {health.error ? `(${health.error})` : ''}
+            </Block>
+        );
     };
 
     const compareResponses = () => {
@@ -62,9 +179,47 @@ function App() {
     };
 
     return (
-        <Block padding="scale800" maxWidth="1200px" margin="0 auto">
+        <Block padding="scale800" maxWidth="1400px" margin="0 auto">
             <Block marginBottom="scale800">
                 <DisplayLarge>API Comparison Tool</DisplayLarge>
+            </Block>
+
+            {/* Health Check Buttons */}
+            <Block display="flex" marginBottom="scale800">
+                <Block flex={1} marginRight="scale400">
+                    <Button
+                        onClick={checkFastAPIHealth}
+                        size="compact"
+                        overrides={{
+                            Root: {
+                                style: {
+                                    width: '100%',
+                                    marginBottom: '8px'
+                                }
+                            }
+                        }}
+                    >
+                        Check FastAPI Health
+                    </Button>
+                    {renderHealthStatus(fastapiHealth)}
+                </Block>
+                <Block flex={1} marginLeft="scale400">
+                    <Button
+                        onClick={checkElysiaHealth}
+                        size="compact"
+                        overrides={{
+                            Root: {
+                                style: {
+                                    width: '100%',
+                                    marginBottom: '8px'
+                                }
+                            }
+                        }}
+                    >
+                        Check Elysia Health
+                    </Button>
+                    {renderHealthStatus(elysiaHealth)}
+                </Block>
             </Block>
 
             <Block marginBottom="scale800">
@@ -100,81 +255,117 @@ function App() {
                 </Button>
             </Block>
 
-            <StatefulTabs
-                initialState={{ activeKey: 0 }}
-                renderAll
-            >
-                <Tab title="FastAPI Response">
-                    {fastapiResponse && (
-                        <Block
-                            padding="scale400"
+            <Block display="flex" width="100%">
+                {/* FastAPI Column */}
+                <Block flex={1} marginRight="scale400">
+                    <Block marginBottom="scale400">
+                        <DisplayMedium>FastAPI</DisplayMedium>
+                    </Block>
+                    <Block marginBottom="scale400">
+                        <Button
+                            onClick={callFastAPI}
+                            size="compact"
                             overrides={{
-                                Block: {
+                                Root: {
                                     style: {
-                                        border: '1px solid',
-                                        borderColor: 'rgb(232, 232, 232)',
-                                        borderRadius: '8px',
-                                    }
-                                }
+                                        width: '100%',
+                                    },
+                                },
                             }}
                         >
-                            <JSONPretty data={fastapiResponse} />
-                        </Block>
-                    )}
-                </Tab>
-                <Tab title="Elysia Response">
-                    {elysiaResponse && (
-                        <Block
-                            padding="scale400"
-                            overrides={{
-                                Block: {
-                                    style: {
-                                        border: '1px solid',
-                                        borderColor: 'rgb(232, 232, 232)',
-                                        borderRadius: '8px',
-                                    }
+                            Send to FastAPI
+                        </Button>
+                    </Block>
+                    <Block
+                        padding="scale400"
+                        overrides={{
+                            Block: {
+                                style: {
+                                    border: '1px solid',
+                                    borderColor: 'rgb(232, 232, 232)',
+                                    borderRadius: '8px',
+                                    minHeight: '200px',
                                 }
+                            }
+                        }}
+                    >
+                        {renderResponse(fastapiResponse)}
+                    </Block>
+                </Block>
+
+                {/* Elysia Column */}
+                <Block flex={1} marginLeft="scale400">
+                    <Block marginBottom="scale400">
+                        <DisplayMedium>Elysia</DisplayMedium>
+                    </Block>
+                    <Block marginBottom="scale400">
+                        <Button
+                            onClick={callElysia}
+                            size="compact"
+                            overrides={{
+                                Root: {
+                                    style: {
+                                        width: '100%',
+                                    },
+                                },
                             }}
                         >
-                            <JSONPretty data={elysiaResponse} />
+                            Send to Elysia
+                        </Button>
+                    </Block>
+                    <Block
+                        padding="scale400"
+                        overrides={{
+                            Block: {
+                                style: {
+                                    border: '1px solid',
+                                    borderColor: 'rgb(232, 232, 232)',
+                                    borderRadius: '8px',
+                                    minHeight: '200px',
+                                }
+                            }
+                        }}
+                    >
+                        {renderResponse(elysiaResponse)}
+                    </Block>
+                </Block>
+            </Block>
+
+            {/* Comparison Section */}
+            {fastapiResponse && elysiaResponse && (
+                <Block marginTop="scale800">
+                    <Block marginBottom="scale400">
+                        <DisplayMedium>Comparison</DisplayMedium>
+                    </Block>
+                    <Block
+                        padding="scale400"
+                        overrides={{
+                            Block: {
+                                style: {
+                                    border: '1px solid',
+                                    borderColor: 'rgb(232, 232, 232)',
+                                    borderRadius: '8px',
+                                }
+                            }
+                        }}
+                    >
+                        <Block marginBottom="scale400">
+                            Responses match: {compareResponses() ? '✅' : '❌'}
                         </Block>
-                    )}
-                </Tab>
-                <Tab title="Comparison">
-                    {fastapiResponse && elysiaResponse && (
-                        <Block>
-                            <Block marginBottom="scale400">Responses Comparison:</Block>
-                            <Block
-                                padding="scale400"
-                                overrides={{
-                                    Block: {
-                                        style: {
-                                            border: '1px solid',
-                                            borderColor: 'rgb(232, 232, 232)',
-                                            borderRadius: '8px',
-                                        }
-                                    }
-                                }}
-                            >
-                                <Block marginBottom="scale400">
-                                    Arrays match: {compareResponses() ? '✅' : '❌'}
-                                </Block>
-                                {!compareResponses() && (
-                                    <Block>
-                                        <Block marginBottom="scale400">Differences:</Block>
-                                        <JSONPretty
-                                            data={{
-                                                fastapi: fastapiResponse,
-                                                elysia: elysiaResponse
-                                            }}
-                                        />
-                                    </Block>
-                                )}
+                        {!compareResponses() && (
+                            <Block>
+                                <Block marginBottom="scale400">Differences:</Block>
+                                <JSONPretty
+                                    data={{
+                                        fastapi: fastapiResponse,
+                                        elysia: elysiaResponse
+                                    }}
+                                />
                             </Block>
-                        </Block>
-                    )}
-                </Tab>
-            </StatefulTabs>
+                        )}
+                    </Block>
+                </Block>
+            )}
         </Block>
     );
 }

@@ -5,11 +5,26 @@ include:
   - docker-compose-agents.yaml
 
 services:
+  react:
+    build:
+      context: react
+    ports:
+      - "3000:3000"
+    environment:
+      OPENAI_API_KEY:
+    #      NODE_ENV: production
+    networks:
+      - mind_network
+    develop:
+      watch:
+        - action: sync
+          path: react
+          target: /app
   elysia:
     build:
       context: elysia
     ports:
-      - "3000:3000"
+      - "3002:80"
     environment:
       OPENAI_API_KEY:
 #      NODE_ENV: production
