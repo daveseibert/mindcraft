@@ -1,19 +1,9 @@
-// src/App.tsx
 import React, { useState } from 'react';
-import {
-    ChakraProvider,
-    Box,
-    VStack,
-    Button,
-    Text,
-    Textarea,
-    Container,
-    Tabs,
-    TabList,
-    TabPanels,
-    Tab,
-    TabPanel,
-} from '@chakra-ui/react';
+import { Block } from 'baseui/block';
+import { Button } from 'baseui/button';
+import { Input } from 'baseui/input';
+import { DisplayLarge } from 'baseui/typography';
+import { Tabs, Tab, StatefulTabs } from 'baseui/tabs-motion';
 import JSONPretty from 'react-json-pretty';
 import 'react-json-pretty/themes/monikai.css';
 
@@ -26,6 +16,7 @@ function App() {
     const [inputText, setInputText] = useState<string>('');
     const [fastapiResponse, setFastapiResponse] = useState<ApiResponse | null>(null);
     const [elysiaResponse, setElysiaResponse] = useState<ApiResponse | null>(null);
+    const [activeKey, setActiveKey] = useState<React.Key>(0);
 
     const callFastAPI = async () => {
         try {
@@ -71,75 +62,102 @@ function App() {
     };
 
     return (
-        <ChakraProvider>
-            <Container maxW="container.xl" py={8}>
-                <VStack spacing={6} align="stretch">
-                    <Text fontSize="2xl" fontWeight="bold">API Comparison Tool</Text>
+        <Block padding="scale800" maxWidth="1200px" margin="0 auto">
+            <Block marginBottom="scale800">
+                <DisplayLarge>API Comparison Tool</DisplayLarge>
+            </Block>
 
-                    <Textarea
-                        value={inputText}
-                        onChange={(e) => setInputText(e.target.value)}
-                        placeholder="Enter your prompt here..."
-                        size="lg"
-                    />
+            <Block marginBottom="scale800">
+                <Input
+                    value={inputText}
+                    onChange={e => setInputText(e.currentTarget.value)}
+                    placeholder="Enter your prompt here..."
+                    size="large"
+                    overrides={{
+                        Root: {
+                            style: {
+                                width: '100%',
+                            },
+                        },
+                        Input: {
+                            style: {
+                                minHeight: '100px',
+                            },
+                        },
+                    }}
+                />
+            </Block>
 
-                    <Button colorScheme="blue" onClick={() => {
+            <Block marginBottom="scale800">
+                <Button
+                    onClick={() => {
                         callFastAPI();
                         callElysia();
-                    }}>
-                        Send to Both APIs
-                    </Button>
+                    }}
+                    size="large"
+                >
+                    Send to Both APIs
+                </Button>
+            </Block>
 
-                    <Tabs>
-                        <TabList>
-                            <Tab>FastAPI Response</Tab>
-                            <Tab>Elysia Response</Tab>
-                            <Tab>Comparison</Tab>
-                        </TabList>
-
-                        <TabPanels>
-                            <TabPanel>
-                                {fastapiResponse && (
-                                    <Box borderWidth="1px" borderRadius="lg" p={4}>
-                                        <JSONPretty data={fastapiResponse} />
-                                    </Box>
+            <StatefulTabs
+                initialState={{ activeKey: 0 }}
+                renderAll
+            >
+                <Tab title="FastAPI Response">
+                    {fastapiResponse && (
+                        <Block
+                            padding="scale400"
+                            border="1px solid"
+                            borderColor="border"
+                            borderRadius="radius200"
+                        >
+                            <JSONPretty data={fastapiResponse} />
+                        </Block>
+                    )}
+                </Tab>
+                <Tab title="Elysia Response">
+                    {elysiaResponse && (
+                        <Block
+                            padding="scale400"
+                            border="1px solid"
+                            borderColor="border"
+                            borderRadius="radius200"
+                        >
+                            <JSONPretty data={elysiaResponse} />
+                        </Block>
+                    )}
+                </Tab>
+                <Tab title="Comparison">
+                    {fastapiResponse && elysiaResponse && (
+                        <Block>
+                            <Block marginBottom="scale400">Responses Comparison:</Block>
+                            <Block
+                                padding="scale400"
+                                border="1px solid"
+                                borderColor="border"
+                                borderRadius="radius200"
+                            >
+                                <Block marginBottom="scale400">
+                                    Arrays match: {compareResponses() ? '✅' : '❌'}
+                                </Block>
+                                {!compareResponses() && (
+                                    <Block>
+                                        <Block marginBottom="scale400">Differences:</Block>
+                                        <JSONPretty
+                                            data={{
+                                                fastapi: fastapiResponse,
+                                                elysia: elysiaResponse
+                                            }}
+                                        />
+                                    </Block>
                                 )}
-                            </TabPanel>
-                            <TabPanel>
-                                {elysiaResponse && (
-                                    <Box borderWidth="1px" borderRadius="lg" p={4}>
-                                        <JSONPretty data={elysiaResponse} />
-                                    </Box>
-                                )}
-                            </TabPanel>
-                            <TabPanel>
-                                {fastapiResponse && elysiaResponse && (
-                                    <VStack spacing={4} align="stretch">
-                                        <Text>Response Comparison:</Text>
-                                        <Box borderWidth="1px" borderRadius="lg" p={4}>
-                                            <Text>
-                                                Arrays match: {compareResponses() ? '✅' : '❌'}
-                                            </Text>
-                                            {!compareResponses() && (
-                                                <VStack mt={4} spacing={4}>
-                                                    <Text>Differences:</Text>
-                                                    <JSONPretty
-                                                        data={{
-                                                            fastapi: fastapiResponse,
-                                                            elysia: elysiaResponse
-                                                        }}
-                                                    />
-                                                </VStack>
-                                            )}
-                                        </Box>
-                                    </VStack>
-                                )}
-                            </TabPanel>
-                        </TabPanels>
-                    </Tabs>
-                </VStack>
-            </Container>
-        </ChakraProvider>
+                            </Block>
+                        </Block>
+                    )}
+                </Tab>
+            </StatefulTabs>
+        </Block>
     );
 }
 
