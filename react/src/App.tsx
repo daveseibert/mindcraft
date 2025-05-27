@@ -108,9 +108,15 @@ function App() {
                     {fastapiResponse && (
                         <Block
                             padding="scale400"
-                            border="1px solid"
-                            borderColor="border"
-                            borderRadius="radius200"
+                            overrides={{
+                                Block: {
+                                    style: {
+                                        border: '1px solid',
+                                        borderColor: 'rgb(232, 232, 232)',
+                                        borderRadius: '8px',
+                                    }
+                                }
+                            }}
                         >
                             <JSONPretty data={fastapiResponse} />
                         </Block>
@@ -120,9 +126,15 @@ function App() {
                     {elysiaResponse && (
                         <Block
                             padding="scale400"
-                            border="1px solid"
-                            borderColor="border"
-                            borderRadius="radius200"
+                            overrides={{
+                                Block: {
+                                    style: {
+                                        border: '1px solid',
+                                        borderColor: 'rgb(232, 232, 232)',
+                                        borderRadius: '8px',
+                                    }
+                                }
+                            }}
                         >
                             <JSONPretty data={elysiaResponse} />
                         </Block>
@@ -134,9 +146,15 @@ function App() {
                             <Block marginBottom="scale400">Responses Comparison:</Block>
                             <Block
                                 padding="scale400"
-                                border="1px solid"
-                                borderColor="border"
-                                borderRadius="radius200"
+                                overrides={{
+                                    Block: {
+                                        style: {
+                                            border: '1px solid',
+                                            borderColor: 'rgb(232, 232, 232)',
+                                            borderRadius: '8px',
+                                        }
+                                    }
+                                }}
                             >
                                 <Block marginBottom="scale400">
                                     Arrays match: {compareResponses() ? '✅' : '❌'}
