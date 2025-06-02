@@ -14,6 +14,17 @@ services:
     environment:
       LOGFIRE_TOKEN:
       OPENAI_API_KEY:
+    command: ["python", "tasks/tasks.py"]
+  evals:
+    build:
+      context: tasks
+    ports:
+      - "3000-3003:3000-3003" # see the view from the camera mounted on your bot head: http://localhost:3000/
+      - "8000:8000"
+    environment:
+      LOGFIRE_TOKEN:
+      OPENAI_API_KEY:
+    command: ["python", "tasks/evals.py", "--task_path", "tasks/tasks.json", "--insecure_coding", "--no_launch_world"]
   react:
     build:
       context: react

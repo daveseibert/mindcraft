@@ -112,4 +112,3 @@ COPY package.json .
 
 EXPOSE 8000
 
-CMD ["python", "tasks/main.py"]
