@@ -39,5 +39,6 @@ COPY eslint.config.js .
 
 
 EXPOSE 8000
+EXPOSE 8080
 
 CMD ["node", "main.js"]
