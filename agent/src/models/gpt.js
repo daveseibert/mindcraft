@@ -127,12 +127,12 @@ export class GPT {
 
         try {
             // Add debug logging
-            console.log('Sending embedding request to:', `${this.baseUrl}/embeddings`);
-            console.log('Request payload:', {
-                model: this.model_name || "text-embedding-3-small",
-                input: text,
-                provider: 'openai'
-            });
+            // console.log('Sending embedding request to:', `${this.baseUrl}/embeddings`);
+            // console.log('Request payload:', {
+            //     model: this.model_name || "text-embedding-3-small",
+            //     input: text,
+            //     provider: 'openai'
+            // });
 
             const response = await fetch(`${this.baseUrl}/embeddings`, {
                 method: "POST",

@@ -1,11 +1,13 @@
-import { AgentProcess } from './src/process/agent_process.js';
+// import { AgentProcess } from './src/process/agent_process.js';
 import settings from './settings.js';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { mainProxy } from './src/process/main_proxy.js';
+// import { mainProxy } from './src/process/main_proxy.js';
 import { readFileSync } from 'fs';
+import {Agent} from "./src/agent/agent.js";
 
 function parseArguments() {
+    // eslint-disable-next-line no-undef
     return yargs(hideBin(process.argv))
         .option('profiles', {
             type: 'array',
@@ -29,20 +31,19 @@ function getProfiles(args) {
 }
 
 async function main() {
-    mainProxy.connect();
+    // const args = parseArguments();
+    const { load_memory, init_message , profiles} = settings;
+    const profile = profiles[0];
 
-    const args = parseArguments();
-    const profiles = getProfiles(args);
-    console.log(profiles);
-    const { load_memory, init_message } = settings;
-
-    for (let i=0; i<profiles.length; i++) {
-        const agent_process = new AgentProcess();
-        const profile = readFileSync(profiles[i], 'utf8');
-        const agent_json = JSON.parse(profile);
-        mainProxy.registerAgent(agent_json.name, agent_process);
-        agent_process.start(profiles[i], load_memory, init_message, i, args.task_path, args.task_id);
-        await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+        console.log('Starting agent with profile:', profile);
+        const agent = new Agent();
+        await agent.start(profile, load_memory, init_message, 0);
+    } catch (error) {
+        console.error('Failed to start agent process:');
+        console.error(error.message);
+        console.error(error.stack);
+        process.exit(1);
     }
 }
 
