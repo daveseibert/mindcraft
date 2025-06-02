@@ -45,7 +45,7 @@ export class Gemini {
 
         try {
             console.log('Awaiting Gemini API response...');
-            const response = await fetch(`${this.baseUrl}/create_completions`, {
+            const response = await fetch(`${this.baseUrl}/completions`, {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json'
@@ -101,7 +101,7 @@ export class Gemini {
 
         try {
             console.log('Awaiting Gemini API vision response...');
-            const response = await fetch(`${this.baseUrl}/create_completions`, {
+            const response = await fetch(`${this.baseUrl}/completions`, {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json'

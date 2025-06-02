@@ -50,7 +50,7 @@ export class ApiController extends Controller {
         throw new Error("I'm a teapot");
     }
 
-    @Post('create_completions')
+    @Post('completions')
     public async createCompletions(
         @Body() req: CompletionRequest
     ): Promise<{ content: string }> {

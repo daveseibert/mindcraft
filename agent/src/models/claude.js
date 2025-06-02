@@ -25,7 +25,7 @@ export class Claude {
 
         try {
             console.log('Awaiting Claude API response...');
-            const response = await fetch(`${this.baseUrl}/create_completions`, {
+            const response = await fetch(`${this.baseUrl}/completions`, {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json'
@@ -81,7 +81,7 @@ export class Claude {
         };
 
         try {
-            const response = await fetch(`${this.baseUrl}/create_completions`, {
+            const response = await fetch(`${this.baseUrl}/completions`, {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json'

@@ -36,7 +36,7 @@ export class GPT {
 
         try {
             console.log('Awaiting OpenAI API response from model', this.model_name);
-            const response = await fetch(`${this.baseUrl}/create_completions`, {
+            const response = await fetch(`${this.baseUrl}/completions`, {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json'
@@ -100,7 +100,7 @@ export class GPT {
         };
 
         try {
-            const response = await fetch(`${this.baseUrl}/create_completions`, {
+            const response = await fetch(`${this.baseUrl}/completions`, {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json'
