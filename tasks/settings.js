@@ -1,31 +1,18 @@
 const settings = {
     "minecraft_version": "1.20.4", // supports up to 1.21.1
-    "host": "pi2.local", // or "localhost", "your.ip.address.here"
-    "port": 25566,
+    "host": "localhost",
+    "port": 55916,
     "auth": "offline", // or "microsoft"
 
     // the mindserver manages all agents and hosts the UI
-    "host_mindserver": false, // if true, the mindserver will be hosted on this machine. otherwise, specify a public IP address
-    // "mindserver_host": "localhost",
-    "mindserver_host": "host.docker.internal",
-    "mindserver_port": 8080,
+    // "host_mindserver": true, // if true, the mindserver will be hosted on this machine. otherwise, specify a public IP address
+    "mindserver_host": process.env.MINDSERVER_HOST || 'mindserver',
+    "mindserver_port": process.env.MINDSERVER_PORT || 8080,
 
     // the base profile is shared by all bots for default prompts/examples/modes
-    // "base_profile": "./profiles/defaults/survival.json", // also see creative.json, god_mode.json
-    "base_profile": "./profiles/defaults/creative.json", // also see creative.json, god_mode.json
+    "base_profile": "./profiles/defaults/god_mode.json", // also see creative.json, god_mode.json
     "profiles": [
-        "./andy.json",
-        // "./profiles/gpt.json",
-        // "./profiles/claude.json",
-        // "./profiles/gemini.json",
-        // "./profiles/llama.json",
-        // "./profiles/qwen.json",
-        // "./profiles/grok.json",
-        // "./profiles/mistral.json",
-        // "./profiles/deepseek.json",
-
-        // using more than 1 profile requires you to /msg each bot indivually
-        // individual profiles override values from the base profile
+        "./profiles/andy.json",
     ],
     "load_memory": false, // load memory from previous session
     "init_message": "Respond with hello world and your name", // sends to all on spawn
@@ -34,7 +21,7 @@ const settings = {
     "language": "en", // translate to/from this language. Supports these language names: https://cloud.google.com/translate/docs/languages
     "show_bot_views": false, // show bot's view in browser at localhost:3000, 3001...
 
-    "allow_insecure_coding": true, // allows newAction command and model can write/run code on your computer. enable at own risk
+    "allow_insecure_coding": false, // allows newAction command and model can write/run code on your computer. enable at own risk
     "allow_vision": false, // allows vision model to interpret screenshots as inputs
     "blocked_actions" : ["!checkBlueprint", "!checkBlueprintLevel", "!getBlueprint", "!getBlueprintLevel"] , // commands to disable and remove from docs. Ex: ["!setMode"]
     "code_timeout_mins": -1, // minutes code is allowed to run. -1 for no timeout
@@ -46,10 +33,16 @@ const settings = {
     "verbose_commands": true, // show full command syntax
     "narrate_behavior": true, // chat simple automatic actions ('Picking up item!')
     "chat_bot_messages": true, // publicly chat messages to other bots
-    "log_all_prompts": false, // log ALL prompts to file
+    "log_all_prompts": false // log ALL prompts to file
 }
 
 // these environment variables override certain settings
+if (process.env.PROFILE) {
+    settings.profiles = [`./profiles/${process.env.PROFILE}.json`];
+}
+if (process.env.MINECRAFT_HOST) {
+    settings.host = process.env.MINECRAFT_HOST;
+}
 if (process.env.MINECRAFT_PORT) {
     settings.port = process.env.MINECRAFT_PORT;
 }
@@ -61,6 +54,12 @@ if (process.env.PROFILES && JSON.parse(process.env.PROFILES).length > 0) {
 }
 if (process.env.INSECURE_CODING) {
     settings.allow_insecure_coding = true;
+}
+if (process.env.VISION) {
+    settings.allow_vision = true;
+}
+if (process.env.BOT_VIEWS) {
+    settings.show_bot_views = true;
 }
 if (process.env.BLOCKED_ACTIONS) {
     settings.blocked_actions = JSON.parse(process.env.BLOCKED_ACTIONS);

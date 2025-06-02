@@ -1,26 +1,7 @@
 import { writeFileSync, readFileSync, mkdirSync, existsSync } from 'fs';
 import { NPCData } from './npc/data.js';
 import settings from '../../settings.js';
-import * as logfire from "logfire";
 
-logfire.configure({
-    serviceName: "history",
-    otelScope: "logfire",
-    nodeAutoInstrumentations: {
-        '@opentelemetry/instrumentation-http': {
-            enabled: false,
-        },
-        '@opentelemetry/instrumentation-fs': {
-            enabled: false,
-        },
-        '@opentelemetry/instrumentation-net': {
-            enabled: false,
-        },
-        '@opentelemetry/instrumentation-dns': {
-            enabled: false,
-        }
-    }
-});
 
 export class History {
     constructor(agent) {
@@ -58,7 +39,7 @@ export class History {
             this.memory += '...(Memory truncated to 500 chars. Compress it more next time)';
         }
 
-        await logfire.info(`Memory updated to: ${this.memory}`, {"memory": this.memory}, {tags: ["memory"]});
+        console.log("Memory updated to: ", this.memory);
     }
 
     async appendFullHistory(to_store) {

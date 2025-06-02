@@ -14,16 +14,20 @@ services:
     environment:
       LOGFIRE_TOKEN:
       OPENAI_API_KEY:
+      MINECRAFT_HOST: "pi2.local"
+      MINECRAFT_PORT: "25566"
+      INSECURE_CODING: "true"
     command: ["python", "tasks/tasks.py"]
+    networks:
+      - mind_network
+    depends_on:
+      mindserver:
+        condition: service_started
+      fastapi:
+        condition: service_started
   evals:
-    build:
-      context: tasks
-    ports:
-      - "3000-3003:3000-3003" # see the view from the camera mounted on your bot head: http://localhost:3000/
-      - "8000:8000"
-    environment:
-      LOGFIRE_TOKEN:
-      OPENAI_API_KEY:
+    extends:
+      service: tasks
     command: ["python", "tasks/evals.py", "--task_path", "tasks/tasks.json", "--insecure_coding", "--no_launch_world"]
   streamlit:
     extends:

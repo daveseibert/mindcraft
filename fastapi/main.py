@@ -15,7 +15,7 @@ import logfire
 app = FastAPI()
 redis_client = redis.Redis(host='redis', port=6379, decode_responses=True)
 logfire.configure(service_name="fastapi")
-logfire.instrument_fastapi(app)
+# logfire.instrument_fastapi(app)
 
 # Add CORS middleware
 app.add_middleware(

@@ -13,20 +13,44 @@ export class SkillLibrary {
     async initSkillLibrary() {
         const skillDocs = getSkillDocs();
         this.skill_docs = skillDocs;
+
         if (this.embedding_model) {
             try {
-                const embeddingPromises = skillDocs.map((doc) => {
-                    return (async () => {
+                let embedFailures = 0;
+                const embeddingPromises = skillDocs.map(async (doc) => {
+                    try {
                         let func_name_desc = doc.split('\n').slice(0, 2).join('');
-                        this.skill_docs_embeddings[doc] = await this.embedding_model.embed(func_name_desc);
-                    })();
+                        const embedding = await this.embedding_model.embed(func_name_desc);
+
+                        if (Array.isArray(embedding)) {
+                            this.skill_docs_embeddings[doc] = embedding;
+                            return true;
+                        }
+                        console.warn('Invalid embedding received:', embedding);
+                        embedFailures++;
+                        return false;
+                    } catch (err) {
+                        console.warn(`Failed to embed doc: ${func_name_desc.substring(0, 50)}...`, err);
+                        embedFailures++;
+                        return false;
+                    }
                 });
-                await Promise.all(embeddingPromises);
+
+                const results = await Promise.all(embeddingPromises);
+                const successCount = results.filter(Boolean).length;
+
+                console.log(`Embedding results: ${successCount} successful, ${embedFailures} failed`);
+
+                if (embedFailures > skillDocs.length / 2) {
+                    throw new Error(`Too many embedding failures: ${embedFailures}/${skillDocs.length}`);
+                }
             } catch (error) {
-                console.warn('Error with embedding model, using word-overlap instead.');
+                console.warn('Error with embedding model, falling back to word-overlap:', error);
                 this.embedding_model = null;
+                this.skill_docs_embeddings = {};
             }
         }
+
         this.always_show_skills_docs = {};
         for (const skillName of this.always_show_skills) {
             this.always_show_skills_docs[skillName] = this.skill_docs.find(doc => doc.includes(skillName));
