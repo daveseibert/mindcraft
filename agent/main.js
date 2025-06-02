@@ -8,7 +8,7 @@ async function main() {
     try {
         console.log('Starting agent with profile:', profile);
         const agent = new Agent();
-        await agent.start(profile, load_memory, init_message, 0);
+        await agent.start(profile, load_memory, init_message);
     } catch (error) {
         console.error('Failed to start agent process:');
         console.error(error.message);
