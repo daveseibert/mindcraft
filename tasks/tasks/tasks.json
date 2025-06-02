@@ -1,0 +1,16 @@
+{
+  "smelt_ingot": {
+    "goal": "Smelt 2 iron ingot and 1 copper ingot",
+    "agent_count": 1,
+    "initial_inventory": {
+      "furnace": 1,
+      "raw_iron": 2,
+      "raw_copper": 1,
+      "coal": 3
+    },
+    "target": "iron_ingot",
+    "number_of_target": 2,
+    "type": "techtree",
+    "timeout": 180
+  }
+}

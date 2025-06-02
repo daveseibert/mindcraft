@@ -5,6 +5,15 @@ include:
   - docker-compose-agents.yaml
 
 services:
+  tasks:
+    build:
+      context: tasks
+    ports:
+      - "3000-3003:3000-3003" # see the view from the camera mounted on your bot head: http://localhost:3000/
+      - "8000:8000"
+    environment:
+      LOGFIRE_TOKEN:
+      OPENAI_API_KEY:
   react:
     build:
       context: react
@@ -12,7 +21,6 @@ services:
       - "3000:3000"
     environment:
       OPENAI_API_KEY:
-    #      NODE_ENV: production
     networks:
       - mind_network
     develop:
@@ -27,7 +35,6 @@ services:
       - "3002:80"
     environment:
       OPENAI_API_KEY:
-#      NODE_ENV: production
     networks:
       - mind_network
     depends_on:
