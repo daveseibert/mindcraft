@@ -1,28 +1,14 @@
-# Build stage
-FROM node:20-alpine
+FROM node:22
 
 WORKDIR /app
 
-# Copy package files first for better caching
-COPY package*.json ./
+COPY package.json .
+COPY mind_server.js .
+COPY public/ ./public/
+COPY entrypoint.js .
+
 RUN npm install
 
-# Copy config files
-COPY tsconfig.json tsoa.json ./
-
-# Create required directories
-# RUN mkdir -p src/services src/routes src/controllers public
-
-# Copy source files
-COPY src/ ./src/
-COPY src/public/ ./public/
-
-# Build
-RUN npm run build
-
-
-# Expose port
 EXPOSE 8080
 
-# Start the server
 CMD ["npm", "start"]
