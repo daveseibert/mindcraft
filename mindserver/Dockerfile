@@ -3,12 +3,14 @@ FROM node:22
 WORKDIR /app
 
 COPY package.json .
-COPY mind_server.js .
-COPY public/ ./public/
-COPY entrypoint.js .
 
 RUN npm install
 
+COPY src/server.js .
+COPY src/public/ ./public/
+COPY src/entrypoint.js .
+
+
 EXPOSE 8080
 
-CMD ["npm", "start"]
+CMD ["node", "entrypoint.js"]
