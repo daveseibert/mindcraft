@@ -25,6 +25,21 @@ services:
       LOGFIRE_TOKEN:
       OPENAI_API_KEY:
     command: ["python", "tasks/evals.py", "--task_path", "tasks/tasks.json", "--insecure_coding", "--no_launch_world"]
+  streamlit:
+    extends:
+      service: evals
+    command: ["streamlit", "run", "app.py"]
+    ports:
+      - "8501:8501"
+    depends_on:
+      mindserver:
+        condition: service_started
+    develop:
+      watch:
+        - action: sync
+          path: tasks/app.py
+          target: /mindcraft/app.py
+
   react:
     build:
       context: react

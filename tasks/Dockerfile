@@ -109,6 +109,7 @@ COPY main.js .
 COPY settings.js .
 COPY viewer.html .
 COPY package.json .
+COPY app.py .
 
 EXPOSE 8000
 

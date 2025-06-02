@@ -4,3 +4,5 @@ pandas==2.2.3
 prettytable==3.16.0
 tqdm==4.62.3
 logfire[fastapi]
+streamlit
+altair
