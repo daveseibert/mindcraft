@@ -88,7 +88,9 @@ function createKey(
 }
 
 const index = new Elysia()
-    .use(swagger())
+    .use(swagger({
+        provider: "swagger-ui",
+    }))
     .use(cors())
     .onAfterHandle(({ request, set }) => {
         const ip = request.headers.get('x-forwarded-for') || 'unknown';
@@ -107,7 +109,7 @@ const index = new Elysia()
         }
     }))
     .get('/health', () => ({ status: 'OK' }))
-    .get('/coffee', ({ status }) => status(418, "Kirifuji Nagisa"))
+    .get('/coffee', ({ status }: { status: (status_code: number, msg: string) => void }) => status(418, "Kirifuji Nagisa"))
     .get('/', ({ redirect }) => {
         return redirect('/swagger')
     })
@@ -128,8 +130,8 @@ const index = new Elysia()
             systemMessage: req.systemMessage
             })
 
-        const cacheKey = createKey(req.model, hashed, 'comp')
-        console.log('Cache key:', cacheKey)
+        const cacheKey = createKey(req.model, hashed, 'comp');
+        console.log('Cache key:', cacheKey);
 
 
         const cached = await redis.get(cacheKey)

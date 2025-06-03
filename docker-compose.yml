@@ -9,7 +9,7 @@ services:
     build:
       context: tasks
     ports:
-      - "3000-3003:3000-3003" # see the view from the camera mounted on your bot head: http://localhost:3000/
+#      - "3000-3003:3000-3003" # see the view from the camera mounted on your bot head: http://localhost:3000/
       - "8000:8000"
     environment:
       LOGFIRE_TOKEN:
@@ -17,14 +17,14 @@ services:
       MINECRAFT_HOST: "pi2.local"
       MINECRAFT_PORT: "25566"
       INSECURE_CODING: "true"
+      MINDSERVER_HOST: bun
+      MINDSERVER_PORT: 3030
     command: ["python", "tasks/tasks.py"]
     networks:
       - mind_network
-    depends_on:
-      mindserver:
-        condition: service_started
-      fastapi:
-        condition: service_started
+#    depends_on:
+#      fastapi:
+#        condition: service_started
   evals:
     extends:
       service: tasks
@@ -74,6 +74,24 @@ services:
       watch:
         - action: sync
           path: elysia
+          target: /app
+  bun:
+    build:
+      context: bun
+    ports:
+      - "3003:80"
+      - "3030:3030"
+    environment:
+      OPENAI_API_KEY:
+    networks:
+      - mind_network
+    depends_on:
+      - redis
+    command: ["bun", "run", "--watch", "src/index.ts", "--console"]
+    develop:
+      watch:
+        - action: sync
+          path: bun
           target: /app
   mindserver:
     build:

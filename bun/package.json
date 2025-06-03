@@ -1,0 +1,13 @@
+{
+  "name": "bun-server",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "express": "^5.1.0",
+    "openai": "latest",
+    "socket.io": "latest"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}
