@@ -20,7 +20,7 @@ function App() {
     const [elysiaHealth, setElysiaHealth] = useState<ApiResponse | null>(null);
 
     let fastapiUrl = 'http://localhost:8008';
-    let elysiaUrl = 'http://localhost:3002';
+    let elysiaUrl = 'http://localhost:3003';
 
     const checkFastAPIHealth = async () => {
         try {

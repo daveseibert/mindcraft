@@ -104,12 +104,10 @@ COPY profiles/ ./profiles/
 COPY services/ ./services/
 COPY src/ ./src/
 COPY tasks/ ./tasks/
-COPY andy.json .
 COPY main.js .
 COPY settings.js .
 COPY viewer.html .
 COPY package.json .
 COPY app.py .
 
-EXPOSE 8000
 

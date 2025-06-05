@@ -3,8 +3,10 @@
     "target": "es2022",
     "module": "ESNext",
     "esModuleInterop": true,
+    "moduleResolution": "node",
     "types": [
       "bun",
+      "openai"
     ]
   },
   "include": [

@@ -6,7 +6,7 @@ export class GPT {
     constructor(model_name, url, params) {
         this.model_name = model_name;
         this.params = params;
-        this.baseUrl = url || 'http://fastapi:80';
+        this.baseUrl = url || `http://${process.env.API_SERVER_HOST}:${process.env.API_SERVER_PORT}`;
 
         let config = {};
         if (url)

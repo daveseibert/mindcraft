@@ -1,17 +1,44 @@
 import docs from "./docs/index.html"
 import root from "./public/index.html"
+import OpenAI from "openai";
 import { createMindServer } from "./server.js";
 
 createMindServer();
 
+const openai = new OpenAI();
+
 const server = Bun.serve({
-    development: true,
+    development: {
+        console: true,
+    },
     port: 80,
     routes: {
         "/docs": docs,
         "/": root,
         // @ts-ignore
         "/openapi.json": Response(await Bun.file("./src/docs/example_openapi.json").text()),
+        "/health": Response.json({status: "OK"}),
+        "/completions": {
+            POST: async req => {
+                const { model, messages } = await req.json()
+                const response = await openai.chat.completions.create({model, messages});
+                return Response.json({ content: response.choices[0].message.content ?? ""});
+            }
+        },
+        "/responses": {
+            POST: async req => {
+                const body = await req.json();
+                const response = await openai.responses.create(body);
+                return Response.json({ content: response.output_text });
+            }
+        },
+        "/embeddings": {
+            POST: async req => {
+                const body = await req.json();
+                const response = await openai.embeddings.create(body);
+                return Response.json([{ embedding: response.data[0].embedding }]);
+            }
+        }
     },
     fetch(req) {
         const url = new URL(req.url);
@@ -19,7 +46,7 @@ const server = Bun.serve({
         if (url.pathname === "/blog") return new Response("Blog!");
         if (url.pathname === "/error") throw new Error("woops!");
 
-        return new Response("404!");
+        return new Response("404!", { status: 404 });
     },
     error(error) {
         console.error(error);

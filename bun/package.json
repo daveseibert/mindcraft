@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "type": "module",
   "dependencies": {
+    "bun-plugin-tailwind": "^0.0.15",
+    "daisyui": "^5.0.43",
     "express": "^5.1.0",
     "openai": "latest",
-    "socket.io": "latest"
+    "socket.io": "latest",
+    "tailwindcss": "^4.1.8"
   },
   "devDependencies": {
     "@types/bun": "latest"

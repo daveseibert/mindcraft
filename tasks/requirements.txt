@@ -6,3 +6,4 @@ tqdm==4.62.3
 logfire[fastapi]
 streamlit
 altair
+pydantic

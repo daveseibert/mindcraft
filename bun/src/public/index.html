@@ -1,64 +1,70 @@
 <!DOCTYPE html>
-<html>
+<html data-theme="dark" lang="en">
 <head>
+    <meta charset="UTF-8">
+    <title>Hello</title>
+    <link rel="stylesheet" href="tailwindcss" />
+    <link rel="stylesheet" href="daisyui" />
+    <link rel="stylesheet" href="./style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Mindcraft</title>
     <script src="https://cdn.socket.io/4.8.1/socket.io.min.js" integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+" crossorigin="anonymous"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background: #1a1a1a;
-            color: #e0e0e0;
-        }
-        #agents {
-            background: #2d2d2d;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        h1 {
-            color: #ffffff;
-        }
-        .agent {
-            margin: 10px 0;
-            padding: 10px;
-            background: #363636;
-            border-radius: 4px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .restart-btn, .start-btn, .stop-btn {
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-left: 5px;
-        }
-        .restart-btn {
-            background: #4CAF50;
-        }
-        .start-btn {
-            background: #2196F3;
-        }
-        .stop-btn {
-            background: #f44336;
-        }
-        .restart-btn:hover { background: #45a049; }
-        .start-btn:hover { background: #1976D2; }
-        .stop-btn:hover { background: #d32f2f; }
-        .status-icon {
-            font-size: 12px;
-            margin-right: 8px;
-        }
-        .status-icon.online {
-            color: #4CAF50;
-        }
-        .status-icon.offline {
-            color: #f44336;
-        }
-    </style>
+<!--    <style>-->
+<!--        body {-->
+<!--            font-family: Arial, sans-serif;-->
+<!--            margin: 20px;-->
+<!--            background: #1a1a1a;-->
+<!--            color: #e0e0e0;-->
+<!--        }-->
+<!--        #agents {-->
+<!--            background: #2d2d2d;-->
+<!--            padding: 20px;-->
+<!--            border-radius: 8px;-->
+<!--            box-shadow: 0 2px 4px rgba(0,0,0,0.2);-->
+<!--        }-->
+<!--        h1 {-->
+<!--            color: #ffffff;-->
+<!--        }-->
+<!--        .agent {-->
+<!--            margin: 10px 0;-->
+<!--            padding: 10px;-->
+<!--            background: #363636;-->
+<!--            border-radius: 4px;-->
+<!--            display: flex;-->
+<!--            justify-content: space-between;-->
+<!--            align-items: center;-->
+<!--        }-->
+<!--        .restart-btn, .start-btn, .stop-btn {-->
+<!--            color: white;-->
+<!--            border: none;-->
+<!--            padding: 5px 10px;-->
+<!--            border-radius: 4px;-->
+<!--            cursor: pointer;-->
+<!--            margin-left: 5px;-->
+<!--        }-->
+<!--        .restart-btn {-->
+<!--            background: #4CAF50;-->
+<!--        }-->
+<!--        .start-btn {-->
+<!--            background: #2196F3;-->
+<!--        }-->
+<!--        .stop-btn {-->
+<!--            background: #f44336;-->
+<!--        }-->
+<!--        .restart-btn:hover { background: #45a049; }-->
+<!--        .start-btn:hover { background: #1976D2; }-->
+<!--        .stop-btn:hover { background: #d32f2f; }-->
+<!--        .status-icon {-->
+<!--            font-size: 12px;-->
+<!--            margin-right: 8px;-->
+<!--        }-->
+<!--        .status-icon.online {-->
+<!--            color: #4CAF50;-->
+<!--        }-->
+<!--        .status-icon.offline {-->
+<!--            color: #f44336;-->
+<!--        }-->
+<!--    </style>-->
 </head>
 <body>
     <h1>Mindcraft</h1>
