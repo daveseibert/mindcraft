@@ -7,6 +7,25 @@ createMindServer();
 
 const openai = new OpenAI();
 
+interface Message {
+    role: 'system' | 'user' | 'assistant'
+    content: string
+}
+
+interface CompletionRequest {
+    model: string
+    messages: Message[]
+}
+interface ResponseRequest {
+    model: string
+    input: Message[]
+}
+
+interface EmbeddingRequest {
+    model: string
+    input: string
+}
+
 const server = Bun.serve({
     development: {
         console: true,
@@ -20,21 +39,21 @@ const server = Bun.serve({
         "/health": Response.json({status: "OK"}),
         "/completions": {
             POST: async req => {
-                const { model, messages } = await req.json()
+                const { model, messages } = await req.json() as CompletionRequest
                 const response = await openai.chat.completions.create({model, messages});
                 return Response.json({ content: response.choices[0].message.content ?? ""});
             }
         },
         "/responses": {
             POST: async req => {
-                const body = await req.json();
+                const body = await req.json() as ResponseRequest;
                 const response = await openai.responses.create(body);
                 return Response.json({ content: response.output_text });
             }
         },
         "/embeddings": {
             POST: async req => {
-                const body = await req.json();
+                const body = await req.json() as EmbeddingRequest;
                 const response = await openai.embeddings.create(body);
                 return Response.json([{ embedding: response.data[0].embedding }]);
             }
