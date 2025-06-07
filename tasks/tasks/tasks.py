@@ -33,7 +33,7 @@ def run_task(task_path, task_id, profiles=None):
 
 
 def main():
-    task_path = "tasks/tasks.json"
+    task_path = "tasks/debug.json"
     profiles = [
         "profiles/tasks/crafting_profile.json",
     ]
