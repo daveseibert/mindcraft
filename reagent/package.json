@@ -1,11 +1,9 @@
 {
-  "name": "bun-server",
+  "name": "reagent",
   "version": "1.0.0",
   "type": "module",
   "dependencies": {
-    "bun-plugin-tailwind": "^0.0.15",
-    "express": "^5.1.0",
-    "openai": "latest",
+    "mineflayer": "^4.29.0",
     "socket.io": "latest",
     "daisyui": "^5.0.43",
     "tailwindcss": "^4.1.8"

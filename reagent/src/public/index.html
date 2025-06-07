@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html data-theme="dark" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hello</title>
+    <link rel="stylesheet" href="tailwindcss" />
+    <link rel="stylesheet" href="daisyui" />
+    <link rel="stylesheet" href="./style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mindcraft</title>
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js" integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div>
+        <p>HP: <span id="hp">-1</span></p>
+        <p>X: <span id="x">NaN</span></p>
+        <p>Y: <span id="y">NaN</span></p>
+        <p>Z: <span id="z">NaN</span></p>
+    </div>
+    <div id="inventory"></div>
+
+    <script>
+        function renderInventory(inv) {
+            console.log(inv)
+            mapped = Object.entries(inv)
+            const output = mapped.length ?
+                mapped.map(([key, value]) => `
+                    <li>${key}: ${value}</li>
+                    `).join("") :
+                'Inventory is empty.';
+            console.log(output);
+            return output;
+        }
+
+        const socket = new WebSocket("ws://localhost:3004");
+        document.getElementById('inventory').innerText = renderInventory({});
+
+        socket.addEventListener("message", event => {
+            data = event.data;
+            source = event.source;
+            origin = event.origin;
+            console.log(`Source: ${source}`);
+            console.log(`Origin: ${origin}`);
+            console.log(`Data: ${data}`);
+            const jsonData = JSON.parse(data)
+            console.log(`Parsed Data: ${jsonData}`);
+            const channel = jsonData['channel'];
+            console.log(`Channel: ${channel}`);
+
+            if (channel === 'hp') {
+                const hp = jsonData['data']['hp'];
+                console.log(`New HP: ${hp}`);
+                document.getElementById('hp').innerText = hp;
+            }
+            if (channel === 'inventory') {
+                const inventory = jsonData['data']['inventory'];
+                console.log(`New Inventory: ${inventory}`);
+                document.getElementById('inventory').innerHTML = renderInventory(inventory);
+            }
+            if (channel === 'move') {
+                const position = jsonData['data']['position'];
+                const x = position['x'];
+                const y = position['y'];
+                const z = position['z'];
+                console.log(`New Position: x: ${x} y: ${y} z: ${z}`);
+                document.getElementById('x').innerText = x;
+                document.getElementById('y').innerText = y;
+                document.getElementById('z').innerText = z;
+            }
+        })
+
+    </script>
+</body>
+</html> 

@@ -73,6 +73,25 @@ services:
         - action: sync
           path: elysia
           target: /app
+  reagent:
+    build:
+      context: reagent
+    ports:
+      - "3004:80"
+      - "4004:4000"
+    networks:
+      - mind_network
+    command: ["bun", "run", "--watch", "--inspect=4000", "src/index.ts"]
+    environment:
+      MINECRAFT_HOST: pi2.local
+      MINECRAFT_PORT: 25565
+      MINECRAFT_VERSION: 1.20.4
+#      MINECRAFT_USERNAME: hello_world
+    develop:
+      watch:
+        - action: sync
+          path: reagent
+          target: /app
   bun:
     build:
       context: bun
